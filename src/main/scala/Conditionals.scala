@@ -15,19 +15,26 @@ object Conditionals extends App {
   }
 
   ///////////films exercise/////////////
-  val age = 156
+  val age = 17
+  val fourPlusFilms: List[String] = List("U")
+  val eightPlusFilms: List[String] = List("U", "PG")
+  val twelvePlusFilms: List[String] = List("U", "PG", "12A")
+  val fifteenthPlusFilms: List[String] = List("U", "PG", "12A", "15")
+
   if (age <= 4){
-    println("you can not watch any films")
+    println("You can not watch any films")
   } else if (age <= 7 && age >= 4){
-    println("you can watch films rated U")
+    println(s"You can watch films with the rating $fourPlusFilms")
   } else if (age <= 11 && age >= 8){
-    println("you can watch films rated U and PG")
+    println(s"You can watch films rated ${eightPlusFilms.mkString(", ")}")
+    //.mkString(", ") on the end of a list separates the items in the list with whatever is in the comers
   } else if (age <= 14 && age >= 12){
-    println("you can watch films rated U, PG and 12A")
+    println(s"You can watch films rated ${twelvePlusFilms.mkString(", ")}")
   } else if (age >= 15 && age <= 17){
-    println("you can watch films rated U, PG, 12A and 15")
+    println(s"You can watch films rated ${fifteenthPlusFilms.mkString(", ")}")
   } else if (age >= 18){
-    println("you can watch any film you want")
+    println("You can watch any film you want")
   }
+
 
 }
