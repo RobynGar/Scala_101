@@ -28,4 +28,5 @@ object Methods extends App{
   println(nameLength("Arnold", "Schwarzenegger"))
   println(nameLength("Bruce", "Lee"))
   println(nameLength("Ethan", "Hawke"))
+
 }
