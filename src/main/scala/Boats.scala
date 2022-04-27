@@ -3,6 +3,16 @@ object Boats extends App{
     var length: Int = 0
     var width: Int = 0
     var topSpeed: Int = 0
+    val isFasterThan = (a: Boat) => {
+//      if(Boat.this.topSpeed > a.topSpeed){
+//        true
+//      } else if (Boat.this.topSpeed < a.topSpeed){
+//        false
+//      } else {
+//        false
+//      }
+      Boat.this.topSpeed > a.topSpeed
+    }
   }
 
   trait Artillery {
@@ -11,8 +21,8 @@ object Boats extends App{
   }
 
   trait RenownedDesigner{
-    val name: String
-    val location: String
+    var name: String
+    var location: String
   }
 
 
@@ -22,13 +32,17 @@ object Boats extends App{
     var canTrack: Boolean = false
   }
 
-  class LuxurySailBoat extends SailBoat {
+  class LuxurySailBoat extends SailBoat with RenownedDesigner {
     var hasJacuzzi: Boolean = false
     var hasBooze: Boolean = false
+    override var name: String = _
+    override var location: String = _
   }
 
-  class PirateShip extends SailBoat {
+  class PirateShip extends SailBoat with Artillery {
     var numOfGangPlanks: Int = 0
+    override var numGuns: Int = _
+    override var range: Int = _
   }
 
   class MotorBoat extends Boat{
@@ -38,7 +52,7 @@ object Boats extends App{
 
 
 
-  val theMapleBoat = new LuxurySailBoat with RenownedDesigner {
+  val theMapleBoat = new LuxurySailBoat{
     hasOars= false
     canTrack = true
     numSails = 5
@@ -47,28 +61,29 @@ object Boats extends App{
     topSpeed= 90
     hasJacuzzi= true
     hasBooze = true
-    override val name: String = "Maple the Bear"
-    override val location: String = "Brighton"
+    name = "Maple the Bear"
+    location = "Brighton"
   }
 
-  println(theMapleBoat.numSails)
-  println(theMapleBoat.hasBooze)
+//  println(theMapleBoat.numSails)
+//  println(theMapleBoat.hasBooze)
 
-  val theGrumpyMoose = new PirateShip with Artillery {
-    override var numGuns: Int = 8
-    override var range: Int = 300
+  val theGrumpyMoose = new PirateShip {
+    numGuns = 8
+    range = 300
     hasOars= true
     canTrack= false
     numSails= 4
     width = 900
     length = 1500
-    topSpeed= 50
+    topSpeed= 100
     numOfGangPlanks= 6
   }
 
-  println(theGrumpyMoose.numOfGangPlanks)
+//  println(theGrumpyMoose.numOfGangPlanks)
+  println(theGrumpyMoose.range)
 
-
+  println(theMapleBoat.isFasterThan(theGrumpyMoose))
 
 
 
