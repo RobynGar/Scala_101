@@ -43,6 +43,19 @@ object Boats extends App{
     var numOfGangPlanks: Int = 0
     override var numGuns: Int = _
     override var range: Int = _
+    val canOutGun = (a: PirateShip) => {
+      PirateShip.this.numGuns > a.numGuns
+    }
+
+    val canFly = (whatTheyAreUsingToFly: String) => {
+      if (whatTheyAreUsingToFly == "pixie dust"){
+        true
+      } else {
+        false
+      }
+    }
+
+
   }
 
   class MotorBoat extends Boat{
@@ -79,10 +92,15 @@ object Boats extends App{
     topSpeed= 100
     numOfGangPlanks= 6
   }
-
-//  println(theGrumpyMoose.numOfGangPlanks)
+  val comparisonPirates = new PirateShip {
+    numGuns = 3
+    range = 500
+  }
+  println(theGrumpyMoose.canOutGun(comparisonPirates))
+  println(theGrumpyMoose.numOfGangPlanks)
   println(theGrumpyMoose.range)
-
+  println("can the ship fly: " + theGrumpyMoose.canFly("wings"))
+  println("can the ship fly: " + theGrumpyMoose.canFly("pixie dust"))
   println(theMapleBoat.isFasterThan(theGrumpyMoose))
 
 
