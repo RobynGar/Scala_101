@@ -82,6 +82,7 @@ object Boats extends App{
 //  println(theMapleBoat.hasBooze)
 
   val theGrumpyMoose = new PirateShip {
+    numOfGangPlanks= 6
     numGuns = 8
     range = 300
     hasOars= true
@@ -90,7 +91,7 @@ object Boats extends App{
     width = 900
     length = 1500
     topSpeed= 100
-    numOfGangPlanks= 6
+
   }
   val comparisonPirates = new PirateShip {
     numGuns = 3
