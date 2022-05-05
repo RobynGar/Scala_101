@@ -1,4 +1,5 @@
 import org.scalatest.FlatSpec
+import part101.TaxPractical
 
 class TaxPracticalSpec extends FlatSpec{
 

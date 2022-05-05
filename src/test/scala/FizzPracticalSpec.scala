@@ -1,4 +1,5 @@
 import org.scalatest.FlatSpec
+import part101.FizzPractical
 
 class FizzPracticalSpec extends FlatSpec{
   "fizzbuzz" should "modulus by 3 should fizz" in {

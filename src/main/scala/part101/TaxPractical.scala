@@ -1,3 +1,5 @@
+package part101
+
 //import scala.math.BigDecimal.double2bigDecimal
 // above for the rounding to specific decimal place
 class TaxPractical {

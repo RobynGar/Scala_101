@@ -1,3 +1,5 @@
+package part101
+
 class FizzPractical {
   val fizzBuzz= (x: Int) =>{
     if (x % 3 == 0 && x % 5 != 0 && x != 0){
