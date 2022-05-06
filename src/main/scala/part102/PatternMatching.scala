@@ -106,25 +106,27 @@ object PatternMatching extends App {
 
   }
 
-  case class Dog() extends Animal {
-    override val name: String = "puppy"
-    override val age: Int = 1
+  case class Dog(name: String, age: Int) extends Animal {
+//    override val name: String = "puppy"
+//    override val age: Int = 1
   }
 
-  case class Cat() extends Animal {
-    override val name: String = "Sam"
-    override val age: Int = 11
+  case class Cat(name: String, age: Int) extends Animal {
+//    override val name: String = "Sam"
+//    override val age: Int = 11
   }
 
-  val ani: Animal = Dog()
-  val samAnimal: Animal = Cat()
+  val ani: Animal = Dog("Puppy", 1)
+  val samAnimal: Animal = Cat("Sam", 11)
 
-  val animalChecker = ani match {
-    case Dog() => "dog"
-    case Cat() => "kitty"
-    case _ => "other"
+  def animalChecker(animal: Animal) ={
+    animal match {
+      case Dog(name, age) => "dog"
+      case Cat(name, age) => "kitty"
+      case _ => "other"
+    }
   }
-  println(animalChecker)
+  println(animalChecker(ani))
 
   def nameCheck(animal: Animal): String = {
     animal match {
