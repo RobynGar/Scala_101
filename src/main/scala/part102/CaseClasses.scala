@@ -34,12 +34,12 @@ object CaseClasses extends App{
   case class Cat(name: String, loafness: String, plansForWorldDomination: Boolean)
   case class Bird(name: String, numberOfLanguages: Int, isPirate: Boolean)
 
-  val horhay = Cat("Horhay", "unproven", true)
+  val jorge = Cat("Jorge", "unproven", true)
   val pineapple = Bird("Pineapple", 5, true)
 
   case class Kennel(name: String, dogs: List[Dog], cats: List[Cat], birds: List[Bird])
 
-  val debsDogs = Kennel("Deb's Dogs", List(moose, maple, loki, okey), List(horhay), List(pineapple))
+  val debsDogs = Kennel("Deb's Dogs", List(moose, maple, loki, okey), List(jorge), List(pineapple))
 
   println(debsDogs)
 
@@ -48,6 +48,9 @@ object CaseClasses extends App{
   val rebrandExpand = debsDogs.copy(name = "Marvelous Menagerie")
 
   println(rebrand)
+  println(rebrandExpand)
+
+
 
 
 
