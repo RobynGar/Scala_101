@@ -20,16 +20,13 @@ object Options extends App{
 
   val whiteDairy = DairyMilk("white", None)
   val darkDairy = DairyMilk("dark brown", None)
-  val fruiteAndNut = DairyMilk("brown", Some("fruit and nut"))
+  val fruitAndNut = DairyMilk("brown", Some("fruit and nut"))
 
   def whatIsTheFilling(choc: DairyMilk)= {
-    choc match {
-      case choc => choc.filling.getOrElse("no filling")
-      case _ => "not a chocolate bar in stock"
-    }
+    choc.filling.getOrElse("no filling")
   }
   println(whatIsTheFilling(whiteDairy))
-  println(whatIsTheFilling(fruiteAndNut))
+  println(whatIsTheFilling(fruitAndNut))
 
   val bounty = Bounty()
   val caramel = Caramel()
@@ -43,5 +40,39 @@ object Options extends App{
   }
   println(whatIsInTheChocolate(bounty))
   println(whatIsInTheChocolate(caramel))
+
+
+  case class Dog(name: String, spotsColours: Option[String], howlVolume: Option[Int])
+
+
+  def colourSpots(dog: Dog)= {
+    dog.spotsColours match {
+      case Some(colour) => s"${dog.name} has $colour spots"
+      case None => s"${dog.name} does not have spots"
+    }
+  }
+
+  def spotsOrNot(dog: Dog) = {
+    dog.spotsColours.getOrElse(s"${dog.name} does not have any spots.")
+  }
+
+  val spottyDog= Dog("Loki", Some("brown"), None)
+  val notSpottyDog = Dog("Maple", None, Some(300))
+
+  println(colourSpots(spottyDog))
+  println(colourSpots(notSpottyDog))
+  //////GET OR ELSE/////
+  println(spotsOrNot(notSpottyDog))
+  println(spotsOrNot(spottyDog))
+
+  def isThereAnInteger(num: Option[Int]) = {
+    num match {
+      case Some(num) => num * 2
+      case None => 0
+    }
+  }
+ println(isThereAnInteger(spottyDog.howlVolume))
+ println(isThereAnInteger(notSpottyDog.howlVolume))
+
 
 }
