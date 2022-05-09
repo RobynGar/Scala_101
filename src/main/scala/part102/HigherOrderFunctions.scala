@@ -50,7 +50,7 @@ object HigherOrderFunctions extends App{
 
 def circleList(func: (Int) => Double, r: List[Int]): List[Double] = r.map(x => func(x))
 println(circleList(area, List(5, 3, 7)))
-  
+
 
   //////////spongebob///////
 
