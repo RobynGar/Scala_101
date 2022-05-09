@@ -54,18 +54,18 @@ println(circleList(area, List(5, 3, 7)))
 
   //////////spongebob///////
 
-  def spongeBobQuotes(character: String): String = {
+  def spongeBobQuotes(character: Option[String]): String = {
     character match {
-      case "Spongebob" => "Gary, I’m absorbing his blows like I’m made of some sort of spongy material"
-      case "Patrick" => "Dumb people are always blissfully unaware of how dumb they really are…(drools)"
-      case "Plankton" => "Holographic Meatloaf? My favorite!"
-      case "Squidward" => "Too bad SpongeBob’s not here to enjoy Spongebob not being here."
+      case Some("Spongebob") => "Gary, I’m absorbing his blows like I’m made of some sort of spongy material"
+      case Some("Patrick") => "Dumb people are always blissfully unaware of how dumb they really are…(drools)"
+      case Some("Plankton") => "Holographic Meatloaf? My favorite!"
+      case Some("Squidward") => "Too bad SpongeBob’s not here to enjoy Spongebob not being here."
       case _ => "Well, it’s no secret that the best thing about a secret is secretly telling someone your secret, thereby adding another secret to their secret collection of secrets, secretly."
     }
   }
 
-  println(spongeBobQuotes("Patrick"))
-  println(spongeBobQuotes("Crab"))
+  println(spongeBobQuotes(Some("Patrick")))
+  println(spongeBobQuotes(Some("Crab")))
 
   ///////philosophy///////
 
@@ -84,6 +84,8 @@ println(circleList(area, List(5, 3, 7)))
   println(quotes(None))
   println(quotes(Some("To ignore a Loki is to get a headache")))
 
-
-
+//  def circle(func: (Int) => Double, val1: Int): Double = func(val1)
+  def quoteOptions(func: (Option[String]) => String, quote: Option[String]): String = func(quote)
+  println(quoteOptions(quotes, Some("To be or not to be that is the question")))
+  println(quoteOptions(spongeBobQuotes, Some("spongebob")))
 }
