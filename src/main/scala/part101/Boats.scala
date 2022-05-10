@@ -15,28 +15,28 @@ object Boats extends App {
   }
 
   trait Artillery {
-    var numGuns: Int
-    var range: Int
+    val numGuns: Int
+    val range: Int
   }
 
   trait RenownedDesigner {
-    var name: String
-    var location: String
+    val name: String
+    val location: String
   }
 
 
-  class SailBoat(numSails: Int, hasOars: Boolean = false, canTrack: Boolean = false) extends Boat {
+  class SailBoat(numSails: Int = 0, hasOars: Boolean = false, canTrack: Boolean = false) extends Boat {
 
   }
 
-  class LuxurySailBoat(hasJacuzzi: Boolean = false, hasBooze: Boolean = false) extends SailBoat(3, false, true) with RenownedDesigner {
-    override var name: String = _
-    override var location: String = _
+  class LuxurySailBoat(hasJacuzzi: Boolean = false, hasBooze: Boolean = false) extends SailBoat with RenownedDesigner {
+    override val name: String = "Maple the Bear"
+    override val location: String = "Brighton"
   }
 
   class PirateShip(numOfGangPlanks: Int = 0) extends SailBoat(5, true, false) with Artillery {
-    override var numGuns: Int = _
-    override var range: Int = _
+    override val numGuns: Int = 8
+    override val range: Int = 300
     val canOutGun = (a: PirateShip) => {
       PirateShip.this.numGuns > a.numGuns
     }
@@ -52,8 +52,7 @@ object Boats extends App {
 
 
   val theMapleBoat = new LuxurySailBoat(true, false) {
-    name = "Maple the Bear"
-    location = "Brighton"
+
   }
 
   //  println(theMapleBoat.numSails)
@@ -61,8 +60,8 @@ object Boats extends App {
 
   val theGrumpyMoose = new PirateShip(6) {
 
-    numGuns = 8
-    range = 300
+//    numGuns = 8
+//    range = 300
     //    hasOars= true
     //    canTrack= false
     //    numSails= 4
