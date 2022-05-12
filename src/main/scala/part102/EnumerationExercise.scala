@@ -14,8 +14,24 @@ object EnumerationExercise extends App{
 //  val bear = Animal(Mammals, Carnivore, Forest, CannotFly, SwimNoFins)
 //  println(bear)
   //animal with object extending enumeration and case class
-  val fox = Animal(AnimalType.Mammals, Diet.Carnivore, Habitat.Forest, CanFlyEnum.CannotFly, CanSwimEnum.CannotSwim)
-  println(fox)
+  val pig = Animal(AnimalType.Mammals, Diet.Carnivore, Habitat.Grasslands, CanFlyEnum.Wishes, CanSwimEnum.KindOf)
+    pig match {
+    case AnimalType.Mammals => println("I am a Mammal")
+    case Diet.Carnivore => println("I eat anything, literally")
+    case Habitat.Grasslands => println("I live in grasslands")
+    case CanFlyEnum.Wishes => println("I wish I could fly")
+    case CanSwimEnum.KindOf => println("I like to wallow in water")
+    case _ => println("I am a pig")
+    }
+
+
+  println(pig)
+  
+
+
+
+
+
 
 }
 //ex1
@@ -32,21 +48,21 @@ object AnimalType extends Enumeration {
 //case object Invertebrates extends AnimalType
 //ex3
 object CanFlyEnum extends Enumeration{
-  val Wings, CannotFly, FlightlessWings = Value
+  val Wings, CannotFly, FlightlessWings, Wishes = Value
 }
 //sealed trait CanFlyEnum
 //case object Wings extends CanFlyEnum
 //case object CannotFly extends CanFlyEnum
 //case object FlightlessWings extends CanFlyEnum
-
+//case object Wishes extends CanFlyEnum
 object CanSwimEnum extends Enumeration{
-  val Fins, CannotSwim, SwimNoFins = Value
+  val Fins, CannotSwim, SwimNoFins, KindOf = Value
 }
 //sealed trait CanSwimEnum
 //case object Fins extends CanSwimEnum
 //case object CannotSwim extends CanSwimEnum
 //case object SwimNoFins extends CanSwimEnum
-
+//case object KindOf extends CanSwimEnum
 object Habitat extends Enumeration{
   val  Marine, Freshwater, Desert, Forest, Grasslands, CoralReef, Tundra, Evergreen, Polar, TropicalRainforest= Value
 }
