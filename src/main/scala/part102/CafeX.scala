@@ -49,31 +49,63 @@ object CafeX extends App{
   }
   object SteakSandwich extends MenuItem {
     override val cost: BigDecimal = 2.0
-    override val temp: Temperature = Cold
+    override val temp: Temperature = Hot
     override val name: String = "Steak Sandwich"
+    override val vegetarian: Boolean = false
+    override val vegan: Boolean = false
+    override val foodType: FoodBeverage.Value = FoodBeverage.Food
+  }
+  object LobsterAndCaviar extends MenuItem {
+    override val cost: BigDecimal = 80.0
+    override val temp: Temperature = Hot
+    override val name: String = "lobster and caviar"
     override val vegetarian: Boolean = false
     override val vegan: Boolean = false
     override val foodType: FoodBeverage.Value = FoodBeverage.Food
   }
 
   def bill(order: List[MenuItem]): String = {
-    def total(items: List[MenuItem]): BigDecimal = {
-      if (items.exists(x => x.foodType == FoodBeverage.Food)){
-        (items.map(x => x.cost).sum) + ((items.map(x => x.cost).sum) * 0.125).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      } else  items.map(x => x.cost).sum
+
+    def totalWithNoFood(items: List[MenuItem]): BigDecimal = {
+//      if (items.exists(x => x.foodType == FoodBeverage.Food)){
+//        (items.map(x => x.cost).sum) + ((items.map(x => x.cost).sum) * 0.1).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+//      } else items.map(x => x.cost).sum
+      items.map(x => x.cost).sum
     }
-    val billTotal = total(order)
+
+    def total(items: List[MenuItem]): BigDecimal = {
+      (items.map(x => x.cost).sum) + ((items.map(x => x.cost).sum) * 0.1).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+    }
+
+    def totalWithHotFood(items: List[MenuItem]): BigDecimal = {
+      val hotFood =(items.map(x => x.cost).sum)
+      val serviceCharge = ((items.map(x => x.cost).sum) * 0.2).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+
+      if(serviceCharge >= 20.0) 20 + hotFood
+      else hotFood + serviceCharge
+    }
+
+    val orderTotal = order.map(items => items match {
+      case items if (items.temp == Hot && items.foodType == FoodBeverage.Food) => totalWithHotFood(order)
+      case items if items.foodType != FoodBeverage.Food => totalWithNoFood(order)
+      //case items if (order.exists(x => x.foodType == FoodBeverage.Food)) => total(order)
+      case _ => total(order)
+    } )
+
 //    def serviceCharge(whatToTip: BigDecimal) = {
 //      (whatToTip * 0.125).setScale(2, BigDecimal.RoundingMode.HALF_UP)
 //    }
 //    val tip = serviceCharge(billTotal)
     if (order.exists(x => x.foodType == FoodBeverage.Food)){
-    s"Your bill including service charge is £$billTotal"
+
+      s"Your bill including service charge is £${orderTotal.last}"
     } else {
-      s"Your bill is £$billTotal"
+      s"Your bill is £${orderTotal.last}"
     }
   }
 
-  println(bill(List(Coffee, CheeseSandwich)))
-  println(bill(List(Coffee, Coffee, Cola, Coffee)))
+  println(bill(List(Coffee, CheeseSandwich)))//no hot food so service charge of 10%
+  println(bill(List(Coffee, Coffee, Cola, Coffee)))//only drinks so no service charge should be applied
+  println(bill(List(Coffee, SteakSandwich)))//contains hot food so should add 20% to bill for service charge
+  println(bill(List(LobsterAndCaviar, LobsterAndCaviar))) //expensive meal to activate £20 service charge limit 160 meal that is hot so should be a 20% service charge of £32 but the max will make this £20 so 160 + 20 = £180
 }
