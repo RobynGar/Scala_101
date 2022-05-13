@@ -66,15 +66,19 @@ object CafeX extends App{
 
   def bill(order: List[MenuItem]): String = {
 
-    def totalWithNoFood(items: List[MenuItem]): BigDecimal = {
-//      if (items.exists(x => x.foodType == FoodBeverage.Food)){
-//        (items.map(x => x.cost).sum) + ((items.map(x => x.cost).sum) * 0.1).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-//      } else items.map(x => x.cost).sum
-      items.map(x => x.cost).sum
+    def whichServiceCharge(items: List[MenuItem]): BigDecimal = {
+      if (items.exists(x => x.temp == Hot && x.foodType == FoodBeverage.Food)) {
+        totalWithHotFood(items)
+      }else if (items.exists(x => x.foodType == FoodBeverage.Food)){
+       total(items)// (items.map(x => x.cost).sum) + ((items.map(x => x.cost).sum) * 0.1).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+      } else totalOnlyDrinks(items)
     }
 
     def total(items: List[MenuItem]): BigDecimal = {
       (items.map(x => x.cost).sum) + ((items.map(x => x.cost).sum) * 0.1).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+    }
+    def totalOnlyDrinks(items: List[MenuItem]): BigDecimal = {
+      items.map(x => x.cost).sum
     }
 
     def totalWithHotFood(items: List[MenuItem]): BigDecimal = {
@@ -84,28 +88,26 @@ object CafeX extends App{
       if(serviceCharge >= 20.0) 20 + hotFood
       else hotFood + serviceCharge
     }
-
-    val orderTotal = order.map(items => items match {
-      case items if (items.temp == Hot && items.foodType == FoodBeverage.Food) => totalWithHotFood(order)
-      case items if items.foodType != FoodBeverage.Food => totalWithNoFood(order)
-      //case items if (order.exists(x => x.foodType == FoodBeverage.Food)) => total(order)
-      case _ => total(order)
-    } )
-
-//    def serviceCharge(whatToTip: BigDecimal) = {
-//      (whatToTip * 0.125).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-//    }
-//    val tip = serviceCharge(billTotal)
+//
+//    val orderTotal = order.map(items => items match {
+//      case items if (items.temp == Hot && items.foodType == FoodBeverage.Food) => totalWithHotFood(order)
+//      case items if items.foodType != FoodBeverage.Food => totalWithNoFood(order)
+//      //case items if (order.exists(x => x.foodType == FoodBeverage.Food)) => total(order)
+//      case _ => total(order)
+//    } )
+// with above needed to add .last as gives list of bigDouble as output
+    val orderTotal = whichServiceCharge(order)
     if (order.exists(x => x.foodType == FoodBeverage.Food)){
 
-      s"Your bill including service charge is £${orderTotal.last}"
+      s"Your bill including service charge is £${orderTotal}"
     } else {
-      s"Your bill is £${orderTotal.last}"
+      s"Your bill is £${orderTotal}"
     }
   }
 
   println(bill(List(Coffee, CheeseSandwich)))//no hot food so service charge of 10%
   println(bill(List(Coffee, Coffee, Cola, Coffee)))//only drinks so no service charge should be applied
   println(bill(List(Coffee, SteakSandwich)))//contains hot food so should add 20% to bill for service charge
+  println(bill(List(SteakSandwich, Coffee)))//this should be the same as above as the order the food and drinks are inputted should not make a difference
   println(bill(List(LobsterAndCaviar, LobsterAndCaviar))) //expensive meal to activate £20 service charge limit 160 meal that is hot so should be a 20% service charge of £32 but the max will make this £20 so 160 + 20 = £180
 }
