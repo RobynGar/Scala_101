@@ -49,7 +49,7 @@ object CafeX extends App{
     override val premiumItem: Boolean = false
   }
   object SteakSandwich extends MenuItem {
-    override val cost: BigDecimal = 2.0
+    override val cost: BigDecimal = 4.5
     override val temp: Temperature = Hot
     override val name: String = "Steak Sandwich"
     override val vegetarian: Boolean = false
@@ -76,33 +76,64 @@ object CafeX extends App{
     override val foodType: FoodBeverage.Value = FoodBeverage.Food
     override val premiumItem: Boolean = false
   }
+  trait Customer{
+    val loyaltyCard: Boolean
+    val name: String
+    val numOfStars: Int
+  }
 
-  def bill(order: List[MenuItem]): String = {
+  object Karen extends Customer {
+    override val loyaltyCard: Boolean = true
+    override val name: String = "Karen"
+    override val numOfStars: Int = 3
+  }
 
-    def whichServiceCharge(items: List[MenuItem]): BigDecimal = {
+
+  def bill(loyaltyCustomerName: Option[Customer], order: List[MenuItem]): String = {
+
+    def whichServiceCharge(items: List[MenuItem], loyalService: Option[Customer]): BigDecimal = {
       if (items.exists(x => x.foodType == FoodBeverage.Food && x.premiumItem == true)){
         totalWithPremium(items)
       } else if (items.exists(x => x.temp == Hot && x.foodType == FoodBeverage.Food)) {
-        totalWithHotFood(items)
+        totalWithHotFood(items, loyalService).setScale(2, BigDecimal.RoundingMode.HALF_UP)
       } else if (items.exists(x => x.foodType == FoodBeverage.Food)){
-        total(items)
-      } else totalOnlyDrinks(items)
+        total(items, loyalService)
+      } else totalOnlyDrinks(items, loyalService)
     }
 
-    def total(items: List[MenuItem]): BigDecimal = {
-      items.map(x => x.cost).sum + (items.map(x => x.cost).sum * 0.1).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+    def total(items: List[MenuItem], loyalCustomer: Option[Customer]): BigDecimal = {
+        loyalCustomer match {
+          case Some(x) => (loyaltyScheme(x) + (loyaltyScheme(x) * 0.1)).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+          case None => items.map(x => x.cost).sum + (items.map(x => x.cost).sum * 0.1).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+      }
+
     }
-    def totalOnlyDrinks(items: List[MenuItem]): BigDecimal = {
-      items.map(x => x.cost).sum
+    def totalOnlyDrinks(items: List[MenuItem], loyalCustomer: Option[Customer]): BigDecimal = {
+      loyalCustomer match {
+        case Some(x) => loyaltyScheme(x).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+        case None => items.map(x => x.cost).sum
+      }
+
     }
 
-    def totalWithHotFood(items: List[MenuItem]): BigDecimal = {
-      val hotFood =items.map(x => x.cost).sum
-      val serviceCharge = (items.map(x => x.cost).sum * 0.2).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+    def totalWithHotFood(items: List[MenuItem], loyalCustomer: Option[Customer]): BigDecimal = {
 
-      if(serviceCharge >= 20.0) 20 + hotFood
-      else hotFood + serviceCharge
+      def notLoyal(notLoyalItems: List[MenuItem]): BigDecimal = {
+        val hotFood = notLoyalItems.map(x => x.cost).sum
+        val serviceCharge = (notLoyalItems.map(x => x.cost).sum * 0.2).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+
+        if (serviceCharge >= 20.0) 20 + hotFood
+        else hotFood + serviceCharge
+      }
+
+
+      loyalCustomer match {
+        case Some(x) if((loyaltyScheme(x) * 0.2) >= 20) => loyaltyScheme(x) + 20
+        case Some(x) => loyaltyScheme(x) + (loyaltyScheme(x) * 0.2)
+        case None => notLoyal(items)
+      }
     }
+
 
     def totalWithPremium(items: List[MenuItem]): BigDecimal = {
       val hotFood =items.map(x => x.cost).sum
@@ -111,15 +142,20 @@ object CafeX extends App{
       if(serviceCharge >= 40.0) 40 + hotFood
       else hotFood + serviceCharge
     }
-//
-//    val orderTotal = order.map(items => items match {
-//      case items if (items.temp == Hot && items.foodType == FoodBeverage.Food) => totalWithHotFood(order)
-//      case items if items.foodType != FoodBeverage.Food => totalWithNoFood(order)
-//      //case items if (order.exists(x => x.foodType == FoodBeverage.Food)) => total(order)
-//      case _ => total(order)
-//    } )
-// with above needed to add .last as gives list of bigDouble as output
-    val orderTotal = whichServiceCharge(order)
+
+    def loyaltyScheme(customerName: Customer): BigDecimal = {
+      customerName match {
+        case x if (x.loyaltyCard && x.numOfStars >= 3 && x.numOfStars <= 8) => discountedTotal(x.numOfStars * 0.25, order)
+        case x if (x.loyaltyCard && x.numOfStars >= 8) => discountedTotal(8 * 0.25, order)
+        case _ => 1.0
+      }
+    }
+    def discountedTotal(discount: BigDecimal, discountOrder: List[MenuItem]): BigDecimal = {
+      discountOrder.map(x => x.cost).sum * discount
+    }
+
+    val orderTotal = whichServiceCharge(order, loyaltyCustomerName)
+
     if (order.exists(x => x.foodType == FoodBeverage.Food)){
 
       s"Your bill including service charge is £$orderTotal"
@@ -127,13 +163,23 @@ object CafeX extends App{
       s"Your bill is £$orderTotal"
     }
   }
+//non-loyal customers
+  println(bill(None, List(Coffee, CheeseSandwich)))//3.30 no hot food so service charge of 10%
+  println(bill(None, List(Coffee, Coffee, Cola, Coffee)))//3.5 only drinks so no service charge should be applied
+  println(bill(None, List(Coffee, SteakSandwich)))//6.60 contains hot food so should add 20% to bill for service charge
+  println(bill(None, List(SteakSandwich, Coffee)))//6.60 this should be the same as above as the order the food and drinks are inputted should not make a difference
+  println(bill(None, List(Steak, Steak, Steak, Steak, Steak))) //145.0 Made steak a non premium item so can test 20% without activating premium, expensive meal to activate £20 service charge limit 125 meal that is hot so should be a 20% service charge of £25 but the max will make this £20 so 125 + 20 = £145
+  println(bill(None, List(Lobster, Lobster, Cola))) // 63.13 activate premium item 25% service charge
+  println(bill(None, List(Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster))) //240.0, 200 bill with premium item at 25% will give 50 tip and activate the 40 limit so 200 + 40 output of 240
+//loyal customers
+  println("start of loyal" )
+  println(bill(Some(Karen), List(Coffee, CheeseSandwich))) //2.48 loyal discount then 10% tip added
+  println(bill(Some(Karen), List(Coffee, Coffee, Cola, Coffee)))//2.63 loyal discount no tip
+  println(bill(Some(Karen), List(Coffee, SteakSandwich))) //4.95 loyal discount then 20% tip added
+  println(bill(Some(Karen), List(SteakSandwich, Coffee))) //4.95
+  println(bill(Some(Karen), List(Steak, Steak, Steak, Steak, Steak, Steak))) //132.50 loyal discount then activate premium item 25% service charge
+  println(bill(Some(Karen), List(Lobster, Lobster, Cola))) // contains premium so no loyal
+  println(bill(Some(Karen), List(Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster)))
 
-  println(bill(List(Coffee, CheeseSandwich)))//3.30 no hot food so service charge of 10%
-  println(bill(List(Coffee, Coffee, Cola, Coffee)))//3.5 only drinks so no service charge should be applied
-  println(bill(List(Coffee, SteakSandwich)))//3.60 contains hot food so should add 20% to bill for service charge
-  println(bill(List(SteakSandwich, Coffee)))//3.60 this should be the same as above as the order the food and drinks are inputted should not make a difference
-  println(bill(List(Steak, Steak, Steak, Steak, Steak))) //145.0 Made steak a non premium item so can test 20% without activating premium, expensive meal to activate £20 service charge limit 125 meal that is hot so should be a 20% service charge of £25 but the max will make this £20 so 125 + 20 = £145
-  println(bill(List(Lobster, Lobster, Cola))) // 63.13 activate premium item 25% service charge
-  println(bill(List(Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster))) //240.0, 200 bill with premium item at 25% will give 50 tip and activate the 40 limit so 200 + 40 output of 240
 
 }
