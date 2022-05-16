@@ -1,27 +1,21 @@
 import org.scalatest.FlatSpec
-import part102.CafeX
-import part102.CafeX.{MenuItem, Temperature}
-import org.scalamock.scalatest.MockFactory
+import part102.CafeX.{Customer, Employee, MenuItem, calculateBill}
+
 
 
 class CafeXSpec extends FlatSpec {
 
-  "bill only drinks" should "should not add a tip on to bill" in {
-//    val mockTemp = new Temperature {
-//
-//    }
-//
-//    val mockedMenu = new MenuItem {
-//      override val cost: BigDecimal = 2
-//      override val temp: CafeX.Temperature = _
-//      override val name: String = "test food"
-//      override val vegetarian: Boolean = true
-//      override val vegan: Boolean = true
-//      override val foodType: CafeX.FoodBeverage.Value = _
-//      override val premiumItem: Boolean = false
-//    }
-//    val bill = CafeX.bill()
-//    assert()
-//
-//  }
+  "calculateBill" should "not add a tip on to bill when there are only drinks" in {
+      val staffName: Employee = ???
+      val loyaltyCustomerName: Option[Customer] = ???
+      val order: List[MenuItem] = ???
+
+    assert(calculateBill(staffName, loyaltyCustomerName, order).equals(""))
+    }
+
+  "calculateBill" should "blah" in {
+
+  }
+
 }
+
