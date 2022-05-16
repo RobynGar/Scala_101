@@ -94,11 +94,24 @@ object CafeX extends App{
     override val numOfStars: Int = 9
   }
 
+  trait Employee{
+    val name: String
+    val positionTitle: String
+  }
+  object Alice extends Employee {
+    override val name: String = "Alice"
+    override val positionTitle: String = "Manger"
+  }
+  object Bob extends Employee {
+    override val name: String = "Bob"
+    override val positionTitle: String = "Waiter"
+  }
+
 
   val date: LocalDateTime = LocalDateTime.now()
 
 
-  def bill(loyaltyCustomerName: Option[Customer], order: List[MenuItem]): String = {
+  def bill(staffName: Employee, loyaltyCustomerName: Option[Customer], order: List[MenuItem]): String = {
 
     def whichServiceCharge(items: List[MenuItem], loyalService: Option[Customer]): BigDecimal = {
       if (items.exists(x => x.foodType == FoodBeverage.Food && x.premiumItem == true)){
@@ -186,9 +199,9 @@ object CafeX extends App{
     val billOutput = {
       if (order.exists(x => x.foodType == FoodBeverage.Food)) {
 
-        s"Your bill including service charge is £$orderTotal, time of transaction ${date.getHour}"
+        s"Today you were served by ${staffName.name}. \n Your bill including service charge is £$orderTotal. \n  Time of transaction ${date.getHour}"
       } else {
-        s"Your bill is £$orderTotal, time of transaction ${date.getHour}"
+        s"Today you were served by ${staffName.name}. \n Your bill is £$orderTotal. \n  Time of transaction ${date.getHour}"
       }
     }
 // attempt at incrementing stars after purchase of over £20 but not sure if works
@@ -202,25 +215,25 @@ object CafeX extends App{
 
 
 //non-loyal customers
-  println(bill(None, List(Coffee, CheeseSandwich)))//3.30 no hot food so service charge of 10%
-  println(bill(None, List(Coffee, Coffee, Cola, Coffee)))//3.5 only drinks so no service charge should be applied
-  println(bill(None, List(Coffee, SteakSandwich)))//6.60 contains hot food so should add 20% to bill for service charge
-  println(bill(None, List(SteakSandwich, Coffee)))//6.60 this should be the same as above as the order the food and drinks are inputted should not make a difference
-  println(bill(None, List(Steak, Steak, Steak, Steak, Steak))) //145.0 Made steak a non premium item so can test 20% without activating premium, expensive meal to activate £20 service charge limit 125 meal that is hot so should be a 20% service charge of £25 but the max will make this £20 so 125 + 20 = £145
-  println(bill(None, List(Lobster, Lobster, Cola))) // 63.13 activate premium item 25% service charge
-  println(bill(None, List(Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster))) //240.0, 200 bill with premium item at 25% will give 50 tip and activate the 40 limit so 200 + 40 output of 240
+  println(bill(Alice, None, List(Coffee, CheeseSandwich)))//3.30 no hot food so service charge of 10%
+  println(bill(Alice, None, List(Coffee, Coffee, Cola, Coffee)))//3.5 only drinks so no service charge should be applied
+  println(bill(Alice, None, List(Coffee, SteakSandwich)))//6.60 contains hot food so should add 20% to bill for service charge
+  println(bill(Alice, None, List(SteakSandwich, Coffee)))//6.60 this should be the same as above as the order the food and drinks are inputted should not make a difference
+  println(bill(Alice, None, List(Steak, Steak, Steak, Steak, Steak))) //145.0 Made steak a non premium item so can test 20% without activating premium, expensive meal to activate £20 service charge limit 125 meal that is hot so should be a 20% service charge of £25 but the max will make this £20 so 125 + 20 = £145
+  println(bill(Alice, None, List(Lobster, Lobster, Cola))) // 63.13 activate premium item 25% service charge
+  println(bill(Alice, None, List(Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster))) //240.0, 200 bill with premium item at 25% will give 50 tip and activate the 40 limit so 200 + 40 output of 240
 //loyal customers
   println("start of loyal" )
-  println(bill(Some(Karen), List(Coffee, CheeseSandwich))) //3.05 loyal discount then 10% tip added
-  println(bill(Some(Karen), List(Coffee, Coffee, Cola, Coffee)))//3.24 loyal discount no tip
-  println(bill(Some(Karen), List(Coffee, SteakSandwich))) //6.10 loyal discount then 20% tip added
-  println(bill(Some(Karen), List(SteakSandwich, Coffee))) //6.10
-  println(bill(Some(Karen), List(Steak, Steak, Steak, Steak, Steak, Steak))) //158.75 loyal discount then activate premium item 25% service charge
-  println(bill(Some(Karen), List(Lobster, Lobster, Cola))) //63.13 contains premium so no loyal
-  println(bill(Some(Karen), List(Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster))) //240
+  println(bill(Bob, Some(Karen), List(Coffee, CheeseSandwich))) //3.05 loyal discount then 10% tip added
+  println(bill(Bob, Some(Karen), List(Coffee, Coffee, Cola, Coffee)))//3.24 loyal discount no tip
+  println(bill(Bob, Some(Karen), List(Coffee, SteakSandwich))) //6.10 loyal discount then 20% tip added
+  println(bill(Bob, Some(Karen), List(SteakSandwich, Coffee))) //6.10
+  println(bill(Bob, Some(Karen), List(Steak, Steak, Steak, Steak, Steak, Steak))) //158.75 loyal discount then activate premium item 25% service charge
+  println(bill(Bob, Some(Karen), List(Lobster, Lobster, Cola))) //63.13 contains premium so no loyal
+  println(bill(Bob, Some(Karen), List(Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster))) //240
 
 
   println("loyal customer with over 8 stars")
-  println(bill(Some(Keith), List(Coffee, CheeseSandwich))) //2.64
+  println(bill(Bob, Some(Keith), List(Coffee, CheeseSandwich))) //2.64
 
 }
