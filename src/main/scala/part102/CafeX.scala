@@ -196,22 +196,19 @@ object CafeX extends App{
 
     val orderTotal = whichServiceCharge(order, loyaltyCustomerName)
 
-    val billOutput = {
-      if (order.exists(x => x.foodType == FoodBeverage.Food)) {
+   println("-----------------------------------------------")
+    
 
-        s"Today you were served by ${staffName.name}. \n Your bill including service charge is £$orderTotal. \n  Time of transaction ${date.getHour}"
+    if (order.exists(x => x.foodType == FoodBeverage.Food)) {
+        s"Today you were served by ${staffName.name}(${staffName.positionTitle}). \n Your bill including service charge is £$orderTotal. \n  Time of transaction ${date.getHour}"
       } else {
-        s"Today you were served by ${staffName.name}. \n Your bill is £$orderTotal. \n  Time of transaction ${date.getHour}"
+        s"Today you were served by ${staffName.name}(${staffName.positionTitle}). \n Your bill is £$orderTotal. \n  Time of transaction ${date.getHour}"
       }
     }
-// attempt at incrementing stars after purchase of over £20 but not sure if works
-    if (orderTotal >= 20){
-      loyaltyCustomerName.map(x => x.numOfStars + 1)
-      billOutput
-    } else {billOutput}
 
 
-  }
+
+
 
 
 //non-loyal customers
@@ -223,7 +220,7 @@ object CafeX extends App{
   println(bill(Alice, None, List(Lobster, Lobster, Cola))) // 63.13 activate premium item 25% service charge
   println(bill(Alice, None, List(Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster))) //240.0, 200 bill with premium item at 25% will give 50 tip and activate the 40 limit so 200 + 40 output of 240
 //loyal customers
-  println("start of loyal" )
+  println("--------START OF LOYAL---------" )
   println(bill(Bob, Some(Karen), List(Coffee, CheeseSandwich))) //3.05 loyal discount then 10% tip added
   println(bill(Bob, Some(Karen), List(Coffee, Coffee, Cola, Coffee)))//3.24 loyal discount no tip
   println(bill(Bob, Some(Karen), List(Coffee, SteakSandwich))) //6.10 loyal discount then 20% tip added
@@ -233,7 +230,7 @@ object CafeX extends App{
   println(bill(Bob, Some(Karen), List(Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster))) //240
 
 
-  println("loyal customer with over 8 stars")
+  println("--------loyal customer with over 8 stars---------")
   println(bill(Bob, Some(Keith), List(Coffee, CheeseSandwich))) //2.64
 
 }
