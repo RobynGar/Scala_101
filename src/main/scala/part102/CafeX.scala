@@ -1,5 +1,5 @@
 package part102
-
+import java.time._
 //import scala.math.BigDecimal.RoundingMode //this does not seem to be needed
 
 object CafeX extends App{
@@ -94,6 +94,8 @@ object CafeX extends App{
     override val numOfStars: Int = 9
   }
 
+  val fixedClock = Clock.fixed(Instant.ofEpochSecond(1234567890L), ZoneOffset.ofHours(0))
+  val date = LocalDateTime.now(fixedClock)
 
   def bill(loyaltyCustomerName: Option[Customer], order: List[MenuItem]): String = {
 
@@ -110,6 +112,7 @@ object CafeX extends App{
     def total(items: List[MenuItem], loyalCustomer: Option[Customer]): BigDecimal = {
         loyalCustomer match {
           case Some(x) => (loyaltyScheme(x) + (loyaltyScheme(x) * 0.1)).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+          case None if (date.getHour >= 18 && date.getHour <= 21) => ((items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2) * 0.1).setScale(2, BigDecimal.RoundingMode.HALF_UP)
           case None => items.map(x => x.cost).sum + (items.map(x => x.cost).sum * 0.1).setScale(2, BigDecimal.RoundingMode.HALF_UP)
       }
 
@@ -117,6 +120,7 @@ object CafeX extends App{
     def totalOnlyDrinks(items: List[MenuItem], loyalCustomer: Option[Customer]): BigDecimal = {
       loyalCustomer match {
         case Some(x) => loyaltyScheme(x).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+        case None if (date.getHour >= 18 && date.getHour <= 21) => items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2
         case None => items.map(x => x.cost).sum
       }
 
@@ -125,11 +129,16 @@ object CafeX extends App{
     def totalWithHotFood(items: List[MenuItem], loyalCustomer: Option[Customer]): BigDecimal = {
 
       def notLoyal(notLoyalItems: List[MenuItem]): BigDecimal = {
-        val hotFood = notLoyalItems.map(x => x.cost).sum
-        val serviceCharge = (notLoyalItems.map(x => x.cost).sum * 0.2).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+        val happyHour = if (date.getHour >= 18 && date.getHour <= 21){
+          val drinks = notLoyalItems.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2
+          (notLoyalItems.filter(x => x.foodType == FoodBeverage.Food).map(x => x.cost).sum) + drinks
+        }else {
+          notLoyalItems.map(x => x.cost).sum
+        }
+        val serviceCharge = (happyHour * 0.2).setScale(2, BigDecimal.RoundingMode.HALF_UP)
 
-        if (serviceCharge >= 20.0) 20 + hotFood
-        else hotFood + serviceCharge
+        if (serviceCharge >= 20.0) 20 + happyHour
+        else happyHour + serviceCharge
       }
 
 
@@ -142,8 +151,13 @@ object CafeX extends App{
 
 
     def totalWithPremium(items: List[MenuItem]): BigDecimal = {
-      val hotFood =items.map(x => x.cost).sum
-      val serviceCharge = (items.map(x => x.cost).sum * 0.25).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+      val hotFood = if (date.getHour >= 18 && date.getHour <= 21){
+        val drinks = items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2
+        (items.filter(food => food.foodType == FoodBeverage.Food).map(food => food.cost).sum) + drinks
+      } else {
+        items.map(x => x.cost).sum
+      }
+      val serviceCharge = (hotFood * 0.25).setScale(2, BigDecimal.RoundingMode.HALF_UP)
 
       if(serviceCharge >= 40.0) 40 + hotFood
       else hotFood + serviceCharge
@@ -157,17 +171,32 @@ object CafeX extends App{
       }
     }
     def discountedTotal(discount: BigDecimal, discountOrder: List[MenuItem]): BigDecimal = {
-      discountOrder.map(x => x.cost).sum - discountOrder.map(x => x.cost).sum * discount
+      if (date.getHour >= 18 && date.getHour <= 21) {
+        val drinks = discountOrder.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2
+        val happyTotal =((discountOrder.filter(food => food.foodType == FoodBeverage.Food).map(food => food.cost).sum) + drinks)
+        happyTotal - happyTotal * discount
+      } else {
+        discountOrder.map(x => x.cost).sum - discountOrder.map(x => x.cost).sum * discount
+      }
     }
 
     val orderTotal = whichServiceCharge(order, loyaltyCustomerName)
 
-    if (order.exists(x => x.foodType == FoodBeverage.Food)){
+    val billOutput = {
+      if (order.exists(x => x.foodType == FoodBeverage.Food)) {
 
-      s"Your bill including service charge is £$orderTotal"
-    } else {
-      s"Your bill is £$orderTotal"
+        s"Your bill including service charge is £$orderTotal"
+      } else {
+        s"Your bill is £$orderTotal"
+      }
     }
+// attempt at incrementing stars after purchase of over £20 but not sure if works
+    if (orderTotal >= 20){
+      loyaltyCustomerName.map(x => x.numOfStars + 1)
+      billOutput
+    } else {billOutput}
+
+
   }
 
 
@@ -188,6 +217,7 @@ object CafeX extends App{
   println(bill(Some(Karen), List(Steak, Steak, Steak, Steak, Steak, Steak))) //158.75 loyal discount then activate premium item 25% service charge
   println(bill(Some(Karen), List(Lobster, Lobster, Cola))) //63.13 contains premium so no loyal
   println(bill(Some(Karen), List(Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster))) //240
+
 
   println("loyal customer with over 8 stars")
   println(bill(Some(Keith), List(Coffee, CheeseSandwich))) //2.64
