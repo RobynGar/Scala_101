@@ -4,7 +4,7 @@ ThisBuild / scalaVersion := "2.13.8"
 
 libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.8"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
-
+libraryDependencies += "io.github.cquiroz" %% "scala-java-time" % "2.2.2"
 
 lazy val root = (project in file("."))
   .settings(

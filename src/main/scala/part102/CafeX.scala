@@ -94,8 +94,9 @@ object CafeX extends App{
     override val numOfStars: Int = 9
   }
 
-  val fixedClock = Clock.fixed(Instant.ofEpochSecond(1234567890L), ZoneOffset.ofHours(0))
-  val date = LocalDateTime.now(fixedClock)
+
+  val date: LocalDateTime = LocalDateTime.now()
+
 
   def bill(loyaltyCustomerName: Option[Customer], order: List[MenuItem]): String = {
 
@@ -185,9 +186,9 @@ object CafeX extends App{
     val billOutput = {
       if (order.exists(x => x.foodType == FoodBeverage.Food)) {
 
-        s"Your bill including service charge is £$orderTotal"
+        s"Your bill including service charge is £$orderTotal, time of transaction ${date.getHour}"
       } else {
-        s"Your bill is £$orderTotal"
+        s"Your bill is £$orderTotal, time of transaction ${date.getHour}"
       }
     }
 // attempt at incrementing stars after purchase of over £20 but not sure if works
