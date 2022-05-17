@@ -1,8 +1,7 @@
 package part102
 import part102.menuObjectsAndTraits.{CheeseSandwich, Coffee, Cola, Customer, Employee, FoodBeverage, Lobster, MenuItems, Steak, SteakSandwich, Temperature}
-
 import java.time._
-//import scala.math.BigDecimal.RoundingMode //this does not seem to be needed
+
 
 object CafeX extends App{
   //TODO all traits and objects should not live inside this object
@@ -101,21 +100,27 @@ object CafeX extends App{
     }
   }
 
+  def addStarIfBillOver20(loyaltyCustomerName: Option[Customer], order: List[MenuItems]) ={
+    loyaltyCustomerName match {
+    case Some(customer) if(whichServiceCharge(order, loyaltyCustomerName) >= 20) => customer.addStarWhenSpendingOver20(customer.numOfStars)
+    case Some(customer) => println(s"Spend over £20 to collect stars, you currently have ${customer.numOfStars} (does not apply to premium items)")
+    case None => println("Join our loyalty scheme to get money off your next order")
+  }}
+
   def calculateBill(order: List[MenuItems], loyaltyCustomerName: Option[Customer], staffName: Employee): BigDecimal = {
+    println("-----------------------------------------------")
 
-    val orderTotal = whichServiceCharge(order, loyaltyCustomerName)
-
-   println("-----------------------------------------------")
-
+    addStarIfBillOver20(loyaltyCustomerName, order)
 
     if (order.exists(x => x.foodType == FoodBeverage.Food)) { //TODO: I like the creative sentences, you're seeing how this could be used/applied. However, when we're testing we don't need these filler sentences, harder to match things
-        println(s"Today you were served by ${staffName.name}(${staffName.positionTitle}).\n  Time of transaction ${date.getHour.toString ++ date.getMinute.toString}.\n    Your bill including service charge:")
+        println(s"Today you were served by ${staffName.name}(${staffName.positionTitle}).\n  Time of transaction ${date.getHour}:${date.getMinute}.\n    Your bill including service charge:")
       } else {
-        println(s"Today you were served by ${staffName.name}(${staffName.positionTitle}).\n  Time of transaction ${date.getHour}.\n    Your bill including service charge:")
+        println(s"Today you were served by ${staffName.name}(${staffName.positionTitle}).\n  Time of transaction ${date.getHour}:${date.getMinute}.\n    Your bill including service charge:")
       }
-    orderTotal
-  }
 
+
+    whichServiceCharge(order, loyaltyCustomerName)
+  }
 
 
 
