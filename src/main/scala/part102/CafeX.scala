@@ -31,19 +31,36 @@ object CafeX extends App{
     } else if (items.exists(x => x.temp == Temperature.Hot && x.foodType == FoodBeverage.Food)) {
       totalPlusServiceChargeWithHotFood(items, loyalService).setScale(2, BigDecimal.RoundingMode.HALF_UP)
     } else if (items.exists(x => x.foodType == FoodBeverage.Food)){
-      totalPlusServiceCharge(items, loyalService, discount = 0.9)
+      totalPlusServiceCharge(items, loyalService)
     } else
-      totalPlusServiceCharge(items, loyalService, discount = 0)
+      totalPlusServiceChargeOnlyDrinks(items, loyalService)
   }
 
-  def totalPlusServiceCharge(items: List[MenuItems], loyalCustomer: Option[Customer], discount: BigDecimal): BigDecimal = { //TODO: Assuming discount is a percentage
+//  def totalPlusServiceCharge(items: List[MenuItems], loyalCustomer: Option[Customer], discount: BigDecimal): BigDecimal = { //TODO: Assuming discount is a percentage
+//    loyalCustomer match {
+//      case Some(x) => (applyLoyaltySchemeToOrder(x, items) + (applyLoyaltySchemeToOrder(x, items) * (1 - discount))).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+//      case None if (date.getHour >= 18 && date.getHour <= 21) => ((items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2) * (1 - discount)).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+//      case None if (items.exists(containFood => containFood.foodType != FoodBeverage.Food)) => (items.map(drinks => drinks.cost).sum).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+//      case None => items.map(x => x.cost).sum + (items.map(x => x.cost).sum * (1 - discount)).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+//    }
+//
+//  }
+
+  def totalPlusServiceCharge(items: List[MenuItems], loyalCustomer: Option[Customer]): BigDecimal = {
     loyalCustomer match {
-      case Some(x) => (applyLoyaltySchemeToOrder(x, items) + (applyLoyaltySchemeToOrder(x, items) * (1 - discount))).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      case None if (date.getHour >= 18 && date.getHour <= 21) => ((items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2) * (1 - discount)).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      case None if (items.exists(containFood => containFood.foodType != FoodBeverage.Food)) => (items.map(drinks => drinks.cost).sum).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      case None => items.map(x => x.cost).sum + (items.map(x => x.cost).sum * (1 - discount)).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+      case Some(x) => (applyLoyaltySchemeToOrder(x, items) + (applyLoyaltySchemeToOrder(x, items) * 0.1)).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+      case None if (date.getHour >= 18 && date.getHour <= 21) => ((items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2) * 0.1).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+      case None => items.map(x => x.cost).sum + (items.map(x => x.cost).sum * 0.1).setScale(2, BigDecimal.RoundingMode.HALF_UP)
     }
 
+  }
+
+  def totalPlusServiceChargeOnlyDrinks(items: List[MenuItems], loyalCustomer: Option[Customer]): BigDecimal = {
+    loyalCustomer match {
+      case Some(x) => applyLoyaltySchemeToOrder(x, items).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+      case None if (date.getHour >= 18 && date.getHour <= 21) => items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2
+      case None => items.map(x => x.cost).sum
+    }
   }
 
 
@@ -85,7 +102,7 @@ object CafeX extends App{
   }
 
   def applyLoyaltySchemeToOrder(customerName: Customer, order: List[MenuItems]): BigDecimal = {
-    customerName match {//TODO: rename to hasLoyaltyCard
+    customerName match { //TODO: rename to hasLoyaltyCard
       case customer if (customer.hasLoyaltyCard && customer.numOfStars >= 3 && customer.numOfStars <= 8) => discountTheOrder(customer.numOfStars * 0.025, order)
       case x if (x.hasLoyaltyCard && x.numOfStars >= 8) => discountTheOrder(8 * 0.025, order)
       case _ => 1.0
@@ -101,15 +118,22 @@ object CafeX extends App{
     }
   }
 
-  def addStarIfBillOver20(loyaltyCustomerName: Option[Customer], orderTotal: BigDecimal) ={
+  def addStarIfBillOver20(loyaltyCustomerName: Option[Customer], orderTotal: BigDecimal): Int ={
     loyaltyCustomerName match {
-    case Some(customer) if(orderTotal >= 20) => customer.addStarWhenSpendingOver20()
-    case Some(customer) => println(s"Welcome back ${customer.name}, spend over £20 to collect stars, you currently have ${customer.numOfStars}")
-    case None => println("Join our loyalty scheme to get money off your next order")
+    case Some(customer) if(orderTotal >= 20) =>
+      customer.addStar(customer).numOfStars
+      println(customer.addStar(customer).numOfStars)
+      customer.numOfStars
+    case Some(customer) =>
+      println(s"Welcome back ${customer.name}, spend over £20 to collect stars, you currently have ${customer.numOfStars}")
+      customer.numOfStars
+    case None =>
+      println("Join our loyalty scheme to get money off your next order")
+        0
   }}
 
   def calculateBill(order: List[MenuItems], loyaltyCustomerName: Option[Customer], staffName: Employee): BigDecimal = {
-    println("-----------------------------------------------")
+   println("-----------------------------------------------")
     val total = whichServiceCharge(order, loyaltyCustomerName)
     addStarIfBillOver20(loyaltyCustomerName, total)
 
@@ -121,16 +145,17 @@ object CafeX extends App{
 
 
     total
+
   }
 
 
 
 
-println(calculateBill(List(Coffee, Coffee, Coffee), None, alice))
+//println(calculateBill(List(Coffee, Coffee, Coffee), None, alice))
 //non-loyal customers //TODO: Usually we go for test suites, I see you've made them before, it makes it easier to spot mistakes!
   //non-loyal customers
- println(calculateBill(List(Coffee, CheeseSandwich), None, alice))//3.30 no hot food so service charge of 10%
-  println(calculateBill(List(Coffee, Coffee, Cola, Coffee), None, alice))//3.5 only drinks so no service charge should be applied
+ //println(calculateBill(List(Coffee, CheeseSandwich), None, alice))//3.30 no hot food so service charge of 10%
+  //println(calculateBill(List(Coffee, Coffee, Cola, Coffee), None, alice))//3.5 only drinks so no service charge should be applied
 //  println(calculateBill(List(Coffee, SteakSandwich), None, alice))//6.60 contains hot food so should add 20% to bill for service charge
 //  println(calculateBill(List(SteakSandwich, Coffee), None, alice))//6.60 this should be the same as above as the order the food and drinks are inputted should not make a difference
 //  println(calculateBill(List(Steak, Steak, Steak, Steak, Steak), None, alice)) //145.0 Made steak a non premium item so can test 20% without activating premium, expensive meal to activate £20 service charge limit 125 meal that is hot so should be a 20% service charge of £25 but the max will make this £20 so 125 + 20 = £145
@@ -141,9 +166,9 @@ println(calculateBill(List(Coffee, Coffee, Coffee), None, alice))
 //  println(calculateBill(List(Coffee, CheeseSandwich),Some(karen), bob)) //3.05 loyal discount then 10% tip added
 //  println(calculateBill(List(Coffee, Coffee, Cola, Coffee), Some(karen), bob))//3.24 loyal discount no tip
 //  println(calculateBill(List(Coffee, SteakSandwich), Some(karen), bob)) //6.10 loyal discount then 20% tip added
-//  println(calculateBill(List(SteakSandwich, Coffee), Some(karen), bob)) //6.10
-//  println(calculateBill(List(Steak, Steak, Steak, Steak, Steak, Steak), Some(karen), bob)) //158.75 loyal discount then activate premium item 25% service charge
-//  println(calculateBill(List(Lobster, Lobster, Cola), Some(karen), bob)) //63.13 contains premium so no loyal
+  println(calculateBill(List(SteakSandwich, Coffee), Some(karen), bob)) //6.10
+  println(calculateBill(List(Steak, Steak, Steak, Steak, Steak, Steak), Some(karen), bob)) //158.75 loyal discount then activate premium item 25% service charge
+  println(calculateBill(List(Lobster, Lobster, Cola), Some(karen), bob)) //63.13 contains premium so no loyal
 //  println(calculateBill(List(Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster), Some(karen), bob)) //240
 //
 //
