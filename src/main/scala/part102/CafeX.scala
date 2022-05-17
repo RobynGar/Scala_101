@@ -31,7 +31,7 @@ object CafeX extends App{
     } else if (items.exists(x => x.temp == Temperature.Hot && x.foodType == FoodBeverage.Food)) {
       totalPlusServiceChargeWithHotFood(items, loyalService).setScale(2, BigDecimal.RoundingMode.HALF_UP)
     } else if (items.exists(x => x.foodType == FoodBeverage.Food)){
-      totalPlusServiceCharge(items, loyalService, discount = 0.1)
+      totalPlusServiceCharge(items, loyalService, discount = 0.9)
     } else
       totalPlusServiceCharge(items, loyalService, discount = 0)
   }
@@ -40,6 +40,7 @@ object CafeX extends App{
     loyalCustomer match {
       case Some(x) => (applyLoyaltySchemeToOrder(x, items) + (applyLoyaltySchemeToOrder(x, items) * (1 - discount))).setScale(2, BigDecimal.RoundingMode.HALF_UP)
       case None if (date.getHour >= 18 && date.getHour <= 21) => ((items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2) * (1 - discount)).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+      case None if (items.exists(containFood => containFood.foodType != FoodBeverage.Food)) => (items.map(drinks => drinks.cost).sum).setScale(2, BigDecimal.RoundingMode.HALF_UP)
       case None => items.map(x => x.cost).sum + (items.map(x => x.cost).sum * (1 - discount)).setScale(2, BigDecimal.RoundingMode.HALF_UP)
     }
 
@@ -125,28 +126,28 @@ object CafeX extends App{
 
 
 
-
+println(calculateBill(List(Coffee, Coffee, Coffee), None, alice))
 //non-loyal customers //TODO: Usually we go for test suites, I see you've made them before, it makes it easier to spot mistakes!
   //non-loyal customers
-  println(calculateBill(List(Coffee, CheeseSandwich),None, alice))//3.30 no hot food so service charge of 10%
+ println(calculateBill(List(Coffee, CheeseSandwich), None, alice))//3.30 no hot food so service charge of 10%
   println(calculateBill(List(Coffee, Coffee, Cola, Coffee), None, alice))//3.5 only drinks so no service charge should be applied
-  println(calculateBill(List(Coffee, SteakSandwich), None, alice))//6.60 contains hot food so should add 20% to bill for service charge
-  println(calculateBill(List(SteakSandwich, Coffee), None, alice))//6.60 this should be the same as above as the order the food and drinks are inputted should not make a difference
-  println(calculateBill(List(Steak, Steak, Steak, Steak, Steak), None, alice)) //145.0 Made steak a non premium item so can test 20% without activating premium, expensive meal to activate £20 service charge limit 125 meal that is hot so should be a 20% service charge of £25 but the max will make this £20 so 125 + 20 = £145
-  println(calculateBill(List(Lobster, Lobster, Cola), None, alice)) // 63.13 activate premium item 25% service charge
-  println(calculateBill(List(Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster), None, alice)) //240.0, 200 bill with premium item at 25% will give 50 tip and activate the 40 limit so 200 + 40 output of 240
-  //loyal customers
-  println("--------START OF LOYAL---------" )
-  println(calculateBill(List(Coffee, CheeseSandwich),Some(karen), bob)) //3.05 loyal discount then 10% tip added
-  println(calculateBill(List(Coffee, Coffee, Cola, Coffee), Some(karen), bob))//3.24 loyal discount no tip
-  println(calculateBill(List(Coffee, SteakSandwich), Some(karen), bob)) //6.10 loyal discount then 20% tip added
-  println(calculateBill(List(SteakSandwich, Coffee), Some(karen), bob)) //6.10
-  println(calculateBill(List(Steak, Steak, Steak, Steak, Steak, Steak), Some(karen), bob)) //158.75 loyal discount then activate premium item 25% service charge
-  println(calculateBill(List(Lobster, Lobster, Cola), Some(karen), bob)) //63.13 contains premium so no loyal
-  println(calculateBill(List(Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster), Some(karen), bob)) //240
-
-
-  println("--------loyal customer with over 8 stars---------")
-  println(calculateBill(List(Coffee, CheeseSandwich), Some(keith), bob)) //2.64
+//  println(calculateBill(List(Coffee, SteakSandwich), None, alice))//6.60 contains hot food so should add 20% to bill for service charge
+//  println(calculateBill(List(SteakSandwich, Coffee), None, alice))//6.60 this should be the same as above as the order the food and drinks are inputted should not make a difference
+//  println(calculateBill(List(Steak, Steak, Steak, Steak, Steak), None, alice)) //145.0 Made steak a non premium item so can test 20% without activating premium, expensive meal to activate £20 service charge limit 125 meal that is hot so should be a 20% service charge of £25 but the max will make this £20 so 125 + 20 = £145
+//  println(calculateBill(List(Lobster, Lobster, Cola), None, alice)) // 63.13 activate premium item 25% service charge
+//  println(calculateBill(List(Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster), None, alice)) //240.0, 200 bill with premium item at 25% will give 50 tip and activate the 40 limit so 200 + 40 output of 240
+//  //loyal customers
+//  println("--------START OF LOYAL---------" )
+//  println(calculateBill(List(Coffee, CheeseSandwich),Some(karen), bob)) //3.05 loyal discount then 10% tip added
+//  println(calculateBill(List(Coffee, Coffee, Cola, Coffee), Some(karen), bob))//3.24 loyal discount no tip
+//  println(calculateBill(List(Coffee, SteakSandwich), Some(karen), bob)) //6.10 loyal discount then 20% tip added
+//  println(calculateBill(List(SteakSandwich, Coffee), Some(karen), bob)) //6.10
+//  println(calculateBill(List(Steak, Steak, Steak, Steak, Steak, Steak), Some(karen), bob)) //158.75 loyal discount then activate premium item 25% service charge
+//  println(calculateBill(List(Lobster, Lobster, Cola), Some(karen), bob)) //63.13 contains premium so no loyal
+//  println(calculateBill(List(Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster), Some(karen), bob)) //240
+//
+//
+//  println("--------loyal customer with over 8 stars---------")
+//  println(calculateBill(List(Coffee, CheeseSandwich), Some(keith), bob)) //2.64
 
 }
