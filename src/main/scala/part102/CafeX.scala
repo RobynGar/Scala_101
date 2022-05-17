@@ -100,17 +100,17 @@ object CafeX extends App{
     }
   }
 
-  def addStarIfBillOver20(loyaltyCustomerName: Option[Customer], order: List[MenuItems]) ={
+  def addStarIfBillOver20(loyaltyCustomerName: Option[Customer], orderTotal: BigDecimal) ={
     loyaltyCustomerName match {
-    case Some(customer) if(whichServiceCharge(order, loyaltyCustomerName) >= 20) => customer.addStarWhenSpendingOver20(customer.numOfStars)
-    case Some(customer) => println(s"Spend over £20 to collect stars, you currently have ${customer.numOfStars} (does not apply to premium items)")
+    case Some(customer) if(orderTotal >= 20) => customer.addStarWhenSpendingOver20()
+    case Some(customer) => println(s"Welcome back ${customer.name}, spend over £20 to collect stars, you currently have ${customer.numOfStars}")
     case None => println("Join our loyalty scheme to get money off your next order")
   }}
 
   def calculateBill(order: List[MenuItems], loyaltyCustomerName: Option[Customer], staffName: Employee): BigDecimal = {
     println("-----------------------------------------------")
-
-    addStarIfBillOver20(loyaltyCustomerName, order)
+    val total = whichServiceCharge(order, loyaltyCustomerName)
+    addStarIfBillOver20(loyaltyCustomerName, total)
 
     if (order.exists(x => x.foodType == FoodBeverage.Food)) { //TODO: I like the creative sentences, you're seeing how this could be used/applied. However, when we're testing we don't need these filler sentences, harder to match things
         println(s"Today you were served by ${staffName.name}(${staffName.positionTitle}).\n  Time of transaction ${date.getHour}:${date.getMinute}.\n    Your bill including service charge:")
@@ -119,7 +119,7 @@ object CafeX extends App{
       }
 
 
-    whichServiceCharge(order, loyaltyCustomerName)
+    total
   }
 
 
