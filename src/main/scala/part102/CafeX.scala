@@ -13,14 +13,14 @@ object CafeX extends App{
   val keith = Customer(true, "Keith", 9)
 
 
-  val alice= new Employee("Alice", "Manger")
+  val alice= Employee("Alice", "Manger")
   //TODO: Defining an object Alice is good, but what if we wanted to enter loads of employees? Would a class be better suited that a trait/object?
-  val bob= new Employee("Bob", "Waiter")
+  val bob= Employee("Bob", "Waiter")
 
   //TODO: Really happy with how these traits and objects are laid out, just in the wrong location
 
 
-  val date: LocalDateTime = LocalDateTime.now()
+  val date: Int = LocalDateTime.now().getHour
 
   //TODO: when naming methods, think about what it is doing rather than an object, e.g. this is calculating the bill, its not initializing a Bill Type
 
@@ -49,7 +49,7 @@ object CafeX extends App{
   def totalPlusServiceCharge(items: List[MenuItems], loyalCustomer: Option[Customer]): BigDecimal = {
     loyalCustomer match {
       case Some(x) => (applyLoyaltySchemeToOrder(x, items) + (applyLoyaltySchemeToOrder(x, items) * 0.1)).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      case None if (date.getHour >= 18 && date.getHour <= 21) => ((items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2) * 0.1).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+      case None if (date >= 18 && date <= 21) => ((items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2) * 0.1).setScale(2, BigDecimal.RoundingMode.HALF_UP)
       case None => items.map(x => x.cost).sum + (items.map(x => x.cost).sum * 0.1).setScale(2, BigDecimal.RoundingMode.HALF_UP)
     }
 
@@ -58,7 +58,7 @@ object CafeX extends App{
   def totalPlusServiceChargeOnlyDrinks(items: List[MenuItems], loyalCustomer: Option[Customer]): BigDecimal = {
     loyalCustomer match {
       case Some(x) => applyLoyaltySchemeToOrder(x, items).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      case None if (date.getHour >= 18 && date.getHour <= 21) => items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2
+      case None if (date >= 18 && date <= 21) => items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2
       case None => items.map(x => x.cost).sum
     }
   }
@@ -67,7 +67,7 @@ object CafeX extends App{
   def totalPlusServiceChargeWithHotFood(items: List[MenuItems], loyalCustomer: Option[Customer]): BigDecimal = {
 
     def notLoyal(notLoyalItems: List[MenuItems]): BigDecimal = { //TODO: Having methods embedded inside others is not usually recommended, especially 3 layers deep!
-      val happyHour = if (date.getHour >= 18 && date.getHour <= 21){
+      val happyHour = if (date >= 18 && date <= 21){
         val drinks = notLoyalItems.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2
         (notLoyalItems.filter(x => x.foodType == FoodBeverage.Food).map(x => x.cost).sum) + drinks
       }else {
@@ -89,7 +89,7 @@ object CafeX extends App{
 
 
   def totalPlusServiceChargeWithPremium(items: List[MenuItems]): BigDecimal = { //TODO: again, a lot of this code looks similar to above, could it be re-used?
-    val hotFood = if (date.getHour >= 18 && date.getHour <= 21){
+    val hotFood = if (date >= 18 && date <= 21){
       val drinks = items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2
       (items.filter(food => food.foodType == FoodBeverage.Food).map(food => food.cost).sum) + drinks
     } else {
@@ -109,7 +109,7 @@ object CafeX extends App{
     }
   }
   def discountTheOrder(discount: BigDecimal, order: List[MenuItems]): BigDecimal = { //TODO: why is dicountOrder the input?
-    if (date.getHour >= 18 && date.getHour <= 21) {
+    if (date >= 18 && date <= 21) {
       val drinks = order.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2
       val happyTotal =((order.filter(food => food.foodType == FoodBeverage.Food).map(food => food.cost).sum) + drinks)
       happyTotal - happyTotal * discount
@@ -138,9 +138,9 @@ object CafeX extends App{
     addStarIfBillOver20(loyaltyCustomerName, total)
 
     if (order.exists(x => x.foodType == FoodBeverage.Food)) { //TODO: I like the creative sentences, you're seeing how this could be used/applied. However, when we're testing we don't need these filler sentences, harder to match things
-        println(s"Today you were served by ${staffName.name}(${staffName.positionTitle}).\n  Time of transaction ${date.getHour}:${date.getMinute}.\n    Your bill including service charge:")
+        println(s"Today you were served by ${staffName.name}(${staffName.positionTitle}).\n  Time of transaction ${date}.\n    Your bill including service charge:")
       } else {
-        println(s"Today you were served by ${staffName.name}(${staffName.positionTitle}).\n  Time of transaction ${date.getHour}:${date.getMinute}.\n    Your bill including service charge:")
+        println(s"Today you were served by ${staffName.name}(${staffName.positionTitle}).\n  Time of transaction ${date}.\n    Your bill including service charge:")
       }
 
 

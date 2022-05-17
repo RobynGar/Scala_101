@@ -2,7 +2,7 @@ import org.scalatest.FlatSpec
 import part102.CafeX
 import part102.menuObjectsAndTraits.{Coffee, Customer, Employee, MenuItems}
 
-import java.time.LocalDateTime
+
 
 
 
@@ -12,10 +12,10 @@ class CafeXSpec extends FlatSpec {
       val staffName: Employee = new Employee("test Employee", "tester")
       val loyaltyCustomerName: Option[Customer] = None
       val order: List[MenuItems] = List(Coffee, Coffee, Coffee)
-    
 
-    //assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName).equals(3.00))
-    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName) === 3.00)
+
+    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName).equals(3.00))
+    //assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName) === 3.00)
 
     }
 
