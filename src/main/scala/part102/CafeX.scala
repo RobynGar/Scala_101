@@ -24,9 +24,8 @@ object CafeX extends App{
 
   val date: Int = LocalTime.now().getHour
 
-  val billDate: LocalDateTime = LocalDateTime.of(LocalDate.now(), LocalTime.now())
   val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-  val dateMin: String = formatter.format(billDate)
+  val dateMin: String = formatter.format(LocalTime.now())
 
   //TODO: when naming methods, think about what it is doing rather than an object, e.g. this is calculating the bill, its not initializing a Bill Type
 
