@@ -1,6 +1,8 @@
 package part102
-import part102.menuObjectsAndTraits.{CheeseSandwich, Coffee, Cola, Customer, Employee, FoodBeverage, Lobster, MenuItems, Caviar, SteakSandwich, Temperature}
+import part102.menuObjectsAndTraits.{Caviar, CheeseSandwich, Coffee, Cola, Customer, Employee, FoodBeverage, Lobster, MenuItems, SteakSandwich, Temperature}
+
 import java.time._
+import java.time.format.DateTimeFormatter
 
 
 object CafeX extends App{
@@ -20,8 +22,11 @@ object CafeX extends App{
   //TODO: Really happy with how these traits and objects are laid out, just in the wrong location
 
 
-  val date: Int = LocalDateTime.now().getHour
-  val dateMin: Int = LocalDateTime.now().getMinute
+  val date: Int = LocalTime.now().getHour
+
+  val billDate: LocalDateTime = LocalDateTime.of(LocalDate.now(), LocalTime.now())
+  val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+  val dateMin: String = formatter.format(billDate)
 
   //TODO: when naming methods, think about what it is doing rather than an object, e.g. this is calculating the bill, its not initializing a Bill Type
 
@@ -34,7 +39,7 @@ object CafeX extends App{
     } else if (items.exists(x => x.foodType == FoodBeverage.Food)){
       totalPlusServiceCharge(items, loyalService, date)
     } else
-      totalPlusServiceChargeOnlyDrinks(items, loyalService, date)
+      totalOnlyDrinks(items, loyalService, date)
   }
 
 
@@ -49,7 +54,7 @@ object CafeX extends App{
 
   }
 
-  def totalPlusServiceChargeOnlyDrinks(items: List[MenuItems], loyalCustomer: Option[Customer], date: Int): BigDecimal = {
+  def totalOnlyDrinks(items: List[MenuItems], loyalCustomer: Option[Customer], date: Int): BigDecimal = {
     loyalCustomer match {
       case Some(x) => applyLoyaltySchemeToOrder(x, items, date).setScale(2, BigDecimal.RoundingMode.HALF_UP)
       case None if (date >= 18 && date <= 21) => items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2
@@ -132,9 +137,9 @@ object CafeX extends App{
     addStarIfBillOver20(loyaltyCustomerName, total)
 
     if (order.exists(x => x.foodType == FoodBeverage.Food)) { //TODO: I like the creative sentences, you're seeing how this could be used/applied. However, when we're testing we don't need these filler sentences, harder to match things
-        println(s"Today you were served by ${staffName.name}(${staffName.positionTitle}).\n  Time of transaction ${date}:${dateMin}.\n    Your bill including service charge:")
+        println(s"Today you were served by ${staffName.name}(${staffName.positionTitle}).\n  Time of transaction ${dateMin}.\n    Your bill including service charge:")
       } else {
-        println(s"Today you were served by ${staffName.name}(${staffName.positionTitle}).\n  Time of transaction ${date}:${dateMin}.\n    Your bill including service charge:")
+        println(s"Today you were served by ${staffName.name}(${staffName.positionTitle}).\n  Time of transaction ${dateMin}.\n    Your bill including service charge:")
       }
 
 
@@ -151,7 +156,7 @@ object CafeX extends App{
 
 
  //loyal customers
-//  println("--------START OF LOYAL---------" )
+
 println(calculateBill(List(Coffee, CheeseSandwich, SteakSandwich),Some(karen), bob, date)) //3.05 loyal discount then 10% tip added
 
 }
