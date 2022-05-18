@@ -41,7 +41,9 @@ object CafeX extends App{
   def totalPlusServiceCharge(items: List[MenuItems], loyalCustomer: Option[Customer], date: Int): BigDecimal = {
     loyalCustomer match {
       case Some(x) => (applyLoyaltySchemeToOrder(x, items, date) + (applyLoyaltySchemeToOrder(x, items, date) * 0.1)).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      case None if (date >= 18 && date <= 21) => ((items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2) * 0.1).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+      case None if (date >= 18 && date <= 21) =>
+        val drinksFood = (items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2) + items.filter(orderItems => orderItems.foodType != FoodBeverage.Beverage).map(food => food.cost).sum
+        (drinksFood + (drinksFood * 0.1)).setScale(2, BigDecimal.RoundingMode.HALF_UP)
       case None => items.map(x => x.cost).sum + (items.map(x => x.cost).sum * 0.1).setScale(2, BigDecimal.RoundingMode.HALF_UP)
     }
 

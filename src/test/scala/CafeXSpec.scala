@@ -148,16 +148,25 @@ class CafeXSpec extends FlatSpec {
 
   }
 
-  //happyhour
 
 
-  "calculateBill" should "take 50% off drinks between time 18 and 21" in {
+  "calculateBill" should "take 50% off drinks when bill only contains drinks between time 18 and 21" in {
     val staffName: Employee = Employee("test Employee", "tester")
     val loyaltyCustomerName: Option[Customer] = None
     val order: List[MenuItems] = List(Coffee, Coffee, Coffee)
     val testDate: Int = 19
 
     assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName, testDate).equals(1.50))
+
+  }
+
+  "calculateBill" should "take 50% off drinks when bill only contains cold food and drink between time 18 and 21 and add 10% tip" in {
+    val staffName: Employee = Employee("test Employee", "tester")
+    val loyaltyCustomerName: Option[Customer] = None
+    val order: List[MenuItems] = List(Coffee, Coffee, Coffee, CheeseSandwich) //5 3.5 3.85
+    val testDate: Int = 19
+
+    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName, testDate).equals(3.85))
 
   }
 
