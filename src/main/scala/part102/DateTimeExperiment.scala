@@ -13,9 +13,5 @@ object DateTimeExperiment extends App{
   println(LocalDate.now())
   println(LocalTime.now())
 
-  val testCustomer = Customer(true, "Tess", 1)
-  testCustomer.addStar(testCustomer)
-  println(testCustomer.numOfStars)
-  println(testCustomer.addStar(testCustomer).numOfStars)
-  println(testCustomer.addStar(testCustomer).numOfStars)
+ 
 }
