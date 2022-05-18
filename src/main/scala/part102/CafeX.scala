@@ -116,24 +116,24 @@ object CafeX extends App{
     }
   }
 
-  def addStarIfBillOver20(loyaltyCustomerName: Option[Customer], orderTotal: BigDecimal): Int ={
-    loyaltyCustomerName match {
-    case Some(customer) if(orderTotal >= 20) =>
-      customer.addStar(customer).numOfStars
-      println(customer.addStar(customer).numOfStars)
-      customer.numOfStars
-    case Some(customer) =>
-      println(s"Welcome back ${customer.name}, spend over £20 to collect stars, you currently have ${customer.numOfStars}")
-      customer.numOfStars
-    case None =>
-      println("Join our loyalty scheme to get money off your next order")
-        0
-  }}
+//  def addStarIfBillOver20(loyaltyCustomerName: Option[Customer], orderTotal: BigDecimal): Int ={
+//    loyaltyCustomerName match {
+//    case Some(customer) if(orderTotal >= 20) =>
+//      customer.addStar(customer).numOfStars
+//      println(customer.addStar(customer).numOfStars)
+//      customer.numOfStars
+//    case Some(customer) =>
+//      println(s"Welcome back ${customer.name}, spend over £20 to collect stars, you currently have ${customer.numOfStars}")
+//      customer.numOfStars
+//    case None =>
+//      println("Join our loyalty scheme to get money off your next order")
+//        0
+//  }}
 
   def calculateBill(order: List[MenuItems], loyaltyCustomerName: Option[Customer], staffName: Employee, date: Int): BigDecimal = {
    println("-----------------------------------------------")
     val total = whichServiceCharge(order, loyaltyCustomerName, date)
-    addStarIfBillOver20(loyaltyCustomerName, total)
+    //addStarIfBillOver20(loyaltyCustomerName, total)
 
     if (order.exists(x => x.foodType == FoodBeverage.Food)) { //TODO: I like the creative sentences, you're seeing how this could be used/applied. However, when we're testing we don't need these filler sentences, harder to match things
         println(s"Today you were served by ${staffName.name}(${staffName.positionTitle}).\n  Time of transaction ${dateMin}.\n    Your bill including service charge:")

@@ -1,5 +1,7 @@
 package part102
 
+import part102.menuObjectsAndTraits.Customer
+
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime, LocalTime}
 
@@ -10,4 +12,10 @@ object DateTimeExperiment extends App{
   println(formatter.format(LocalTime.now()))
   println(LocalDate.now())
   println(LocalTime.now())
+
+  val testCustomer = Customer(true, "Tess", 1)
+  testCustomer.addStar(testCustomer)
+  println(testCustomer.numOfStars)
+  println(testCustomer.addStar(testCustomer).numOfStars)
+  println(testCustomer.addStar(testCustomer).numOfStars)
 }
