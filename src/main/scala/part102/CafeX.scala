@@ -1,5 +1,5 @@
 package part102
-import part102.menuObjectsAndTraits.{CheeseSandwich, Coffee, Cola, Customer, Employee, FoodBeverage, Lobster, MenuItems, Steak, SteakSandwich, Temperature}
+import part102.menuObjectsAndTraits.{CheeseSandwich, Coffee, Cola, Customer, Employee, FoodBeverage, Lobster, MenuItems, Caviar, SteakSandwich, Temperature}
 import java.time._
 
 
@@ -21,6 +21,7 @@ object CafeX extends App{
 
 
   val date: Int = LocalDateTime.now().getHour
+  val dateMin: Int = LocalDateTime.now().getMinute
 
   //TODO: when naming methods, think about what it is doing rather than an object, e.g. this is calculating the bill, its not initializing a Bill Type
 
@@ -104,7 +105,7 @@ object CafeX extends App{
   def applyLoyaltySchemeToOrder(customerName: Customer, order: List[MenuItems]): BigDecimal = {
     customerName match { //TODO: rename to hasLoyaltyCard
       case customer if (customer.hasLoyaltyCard && customer.numOfStars >= 3 && customer.numOfStars <= 8) => discountTheOrder(customer.numOfStars * 0.025, order)
-      case x if (x.hasLoyaltyCard && x.numOfStars >= 8) => discountTheOrder(8 * 0.025, order)
+      case customer if (customer.hasLoyaltyCard && customer.numOfStars >= 8) => discountTheOrder(8 * 0.025, order)
       case _ => 1.0
     }
   }
@@ -138,9 +139,9 @@ object CafeX extends App{
     addStarIfBillOver20(loyaltyCustomerName, total)
 
     if (order.exists(x => x.foodType == FoodBeverage.Food)) { //TODO: I like the creative sentences, you're seeing how this could be used/applied. However, when we're testing we don't need these filler sentences, harder to match things
-        println(s"Today you were served by ${staffName.name}(${staffName.positionTitle}).\n  Time of transaction ${date}.\n    Your bill including service charge:")
+        println(s"Today you were served by ${staffName.name}(${staffName.positionTitle}).\n  Time of transaction ${date}:${dateMin}.\n    Your bill including service charge:")
       } else {
-        println(s"Today you were served by ${staffName.name}(${staffName.positionTitle}).\n  Time of transaction ${date}.\n    Your bill including service charge:")
+        println(s"Today you were served by ${staffName.name}(${staffName.positionTitle}).\n  Time of transaction ${date}:${dateMin}.\n    Your bill including service charge:")
       }
 
 
@@ -151,24 +152,24 @@ object CafeX extends App{
 
 
 
-//println(calculateBill(List(Coffee, Coffee, Coffee), None, alice))
+
 //non-loyal customers //TODO: Usually we go for test suites, I see you've made them before, it makes it easier to spot mistakes!
   //non-loyal customers
  //println(calculateBill(List(Coffee, CheeseSandwich), None, alice))//3.30 no hot food so service charge of 10%
   //println(calculateBill(List(Coffee, Coffee, Cola, Coffee), None, alice))//3.5 only drinks so no service charge should be applied
-//  println(calculateBill(List(Coffee, SteakSandwich), None, alice))//6.60 contains hot food so should add 20% to bill for service charge
+  println(calculateBill(List(Coffee, Coffee, Coffee, CheeseSandwich, SteakSandwich), None, alice))//6.60 contains hot food so should add 20% to bill for service charge
 //  println(calculateBill(List(SteakSandwich, Coffee), None, alice))//6.60 this should be the same as above as the order the food and drinks are inputted should not make a difference
-//  println(calculateBill(List(Steak, Steak, Steak, Steak, Steak), None, alice)) //145.0 Made steak a non premium item so can test 20% without activating premium, expensive meal to activate £20 service charge limit 125 meal that is hot so should be a 20% service charge of £25 but the max will make this £20 so 125 + 20 = £145
+
 //  println(calculateBill(List(Lobster, Lobster, Cola), None, alice)) // 63.13 activate premium item 25% service charge
 //  println(calculateBill(List(Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster), None, alice)) //240.0, 200 bill with premium item at 25% will give 50 tip and activate the 40 limit so 200 + 40 output of 240
 //  //loyal customers
 //  println("--------START OF LOYAL---------" )
-//  println(calculateBill(List(Coffee, CheeseSandwich),Some(karen), bob)) //3.05 loyal discount then 10% tip added
+println(calculateBill(List(Coffee, CheeseSandwich, SteakSandwich),Some(karen), bob)) //3.05 loyal discount then 10% tip added
 //  println(calculateBill(List(Coffee, Coffee, Cola, Coffee), Some(karen), bob))//3.24 loyal discount no tip
 //  println(calculateBill(List(Coffee, SteakSandwich), Some(karen), bob)) //6.10 loyal discount then 20% tip added
-  println(calculateBill(List(SteakSandwich, Coffee), Some(karen), bob)) //6.10
-  println(calculateBill(List(Steak, Steak, Steak, Steak, Steak, Steak), Some(karen), bob)) //158.75 loyal discount then activate premium item 25% service charge
-  println(calculateBill(List(Lobster, Lobster, Cola), Some(karen), bob)) //63.13 contains premium so no loyal
+//  println(calculateBill(List(SteakSandwich, Coffee), Some(karen), bob)) //6.10
+
+//  println(calculateBill(List(Lobster, Lobster, Cola), Some(karen), bob)) //63.13 contains premium so no loyal
 //  println(calculateBill(List(Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster), Some(karen), bob)) //240
 //
 //
