@@ -1,6 +1,5 @@
 package part102
 
-import part102.menuObjectsAndTraits.Customer
 
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime, LocalTime}
@@ -13,5 +12,9 @@ object DateTimeExperiment extends App{
   println(LocalDate.now())
   println(LocalTime.now())
 
- 
+  case class DataModel(_id: String, name: String, description: String, numSales: Int)
+
+  val testModel: DataModel= DataModel("764", "ghrt", "sffr", 4)
+
+  println(testModel)
 }
