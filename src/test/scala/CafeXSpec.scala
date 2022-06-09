@@ -1,39 +1,202 @@
 import org.scalatest.FlatSpec
 import part102.CafeX
+<<<<<<< HEAD
 import part102.CafeX.{Customer, Employee, FoodBeverage, Hot, MenuItem, Temperature}
 import org.scalamock.scalatest.MockFactory
+=======
+import part102.CafeX.date
+import part102.menuObjectsAndTraits.{Caviar, CheeseSandwich, Coffee, Customer, Employee, Lobster, MenuItems, SteakSandwich}
+
+
+
+>>>>>>> vinnie_comments
 
 import java.time.LocalDateTime
 
 
 class CafeXSpec extends FlatSpec {
 
-  "bill only drinks" should "should not add a tip on to bill" in {
 
-//    val date: LocalDateTime = LocalDateTime.now()
-//
-//    val mockedMenu = new MenuItem {
-//      override val cost: BigDecimal = 2
-//      override val temp: CafeX.Temperature = Hot
-//      override val name: String = "test food"
-//      override val vegetarian: Boolean = true
-//      override val vegan: Boolean = true
-//      override val foodType: CafeX.FoodBeverage.Value = FoodBeverage.Food
-//      override val premiumItem: Boolean = false
-//    }
-//
-//    val mockCustomer = new Customer {
-//      override val loyaltyCard: Boolean = false
-//      override val name: String = "test customer"
-//      override val numOfStars: Int = 0
-//    }
-//    val mockEmployee = new Employee {
-//      override val name: String = "test employee"
-//      override val positionTitle: String = "tester"
-//    }
-//
-//    val bill = CafeX.bill(mockEmployee, Some(mockCustomer), List(mockedMenu, mockedMenu))
-//    assert(bill === s"Today you were served by ${mockEmployee.name}(${mockEmployee.positionTitle}). \n Your bill including service charge is £. \n  Time of transaction ${date.getHour}")
-//
+  "calculateBill" should "not add a tip on to bill when there are only drinks" in {
+      val staffName: Employee = Employee("test Employee", "tester")
+      val loyaltyCustomerName: Option[Customer] = None
+      val order: List[MenuItems] = List(Coffee, Coffee, Coffee)
+
+
+    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName, date).equals(3.00))
+    //assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName) === 3.00)
+
+    }
+
+
+  "calculateBill" should "add a 10% tip on to bill with cold food on it" in {
+    val staffName: Employee = Employee("test Employee", "tester")
+    val loyaltyCustomerName: Option[Customer] = None
+    val order: List[MenuItems] = List(Coffee, Coffee, Coffee, CheeseSandwich)
+
+
+    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName, date).equals(5.50))
+
   }
+
+  "calculateBill" should "add a 20% tip on to bill with hot food on it" in {
+    val staffName: Employee = Employee("test Employee", "tester")
+    val loyaltyCustomerName: Option[Customer] = None
+    val order: List[MenuItems] = List(Coffee, SteakSandwich, CheeseSandwich)
+
+
+    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName, date).equals(9.00))
+
+  }
+
+  "calculateBill" should "add a £20 when max 20% tip is reached on bill with hot food" in {
+    val staffName: Employee = Employee("test Employee", "tester")
+    val loyaltyCustomerName: Option[Customer] = None
+    val order: List[MenuItems] = List(Coffee, Caviar, Caviar)
+
+
+    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName, date).equals(221.00))
+
+  }
+
+  "calculateBill" should "add a 25% tip on bill with premium food" in {
+    val staffName: Employee = Employee("test Employee", "tester")
+    val loyaltyCustomerName: Option[Customer] = None
+    val order: List[MenuItems] = List(Coffee, Caviar, Lobster)
+
+
+    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName, date).equals(157.50))
+
+  }
+
+  "calculateBill" should "add a £40 when max 25% tip on bill with premium food is reached" in {
+    val staffName: Employee = Employee("test Employee", "tester")
+    val loyaltyCustomerName: Option[Customer] = None
+    val order: List[MenuItems] = List(Coffee, Caviar, Lobster, Lobster, Lobster)
+
+
+    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName, date).equals(216.00))
+
+  }
+
+  "calculateBill" should "add a 10% tip on bill after min loyalty star discount of 7.5% (from 3 stars) has been removed from total" in {
+    val staffName: Employee = Employee("test Employee", "tester")
+    val loyaltyCustomerName: Option[Customer] = Some(Customer(true, "Tess", 3))
+    val order: List[MenuItems] = List(Coffee, Coffee, Coffee, CheeseSandwich, CheeseSandwich)
+
+
+    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName, date).equals(7.12))
+
+  }
+  "calculateBill" should "add a 20% tip on bill after min loyalty star discount of 7.5% (from 3 stars) has been removed from total with hot food" in {
+    val staffName: Employee = Employee("test Employee", "tester")
+    val loyaltyCustomerName: Option[Customer] = Some(Customer(true, "Tess", 3))
+    val order: List[MenuItems] = List(Coffee, CheeseSandwich, SteakSandwich)
+
+
+    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName, date).equals(8.32))
+
+  }
+
+  "calculateBill" should "add a 25% tip on bill and not apply loyalty discount as contain premium items" in {
+    val staffName: Employee = Employee("test Employee", "tester")
+    val loyaltyCustomerName: Option[Customer] = Some(Customer(true, "Tess", 3))
+    val order: List[MenuItems] = List(Coffee, Lobster)
+
+
+    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName, date).equals(32.50))
+
+  }
+
+  "calculateBill" should "add a 10% tip on bill after loyalty star discount from 5 stars has been removed from total" in {
+    val staffName: Employee = Employee("test Employee", "tester")
+    val loyaltyCustomerName: Option[Customer] = Some(Customer(true, "Tess", 5))
+    val order: List[MenuItems] = List(Coffee, Coffee, Coffee, CheeseSandwich, CheeseSandwich)
+
+
+    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName, date).equals(6.74))
+
+  }
+  "calculateBill" should "add a 20% tip on bill after loyalty star discount from 5 stars (0.125) has been removed from total with hot food" in {
+    val staffName: Employee = Employee("test Employee", "tester")
+    val loyaltyCustomerName: Option[Customer] = Some(Customer(true, "Tess", 5))
+    val order: List[MenuItems] = List(Coffee, CheeseSandwich, SteakSandwich)
+
+
+    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName, date).equals(7.88))
+
+  }
+
+  "calculateBill" should "no tip on bill with only drinks but apply loyalty star discount from 5 stars" in {
+    val staffName: Employee = Employee("test Employee", "tester")
+    val loyaltyCustomerName: Option[Customer] = Some(Customer(true, "Tess", 5))
+    val order: List[MenuItems] = List(Coffee, Coffee, Coffee)
+
+
+    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName, date).equals(2.63))
+
+  }
+
+  "calculateBill" should "add a 10% tip on bill after loyalty star discount from over 8 stars has been removed from total" in {
+    val staffName: Employee = Employee("test Employee", "tester")
+    val loyaltyCustomerName: Option[Customer] = Some(Customer(true, "Tess", 10))
+    val order: List[MenuItems] = List(Coffee, Coffee, Coffee, CheeseSandwich, CheeseSandwich)
+
+
+    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName, date).equals(6.16))
+
+  }
+  "calculateBill" should "add a 20% tip on bill after loyalty star discount from over 8 stars has been removed from total with hot food" in {
+    val staffName: Employee = Employee("test Employee", "tester")
+    val loyaltyCustomerName: Option[Customer] = Some(Customer(true, "Tess", 10))
+    val order: List[MenuItems] = List(Coffee, CheeseSandwich, SteakSandwich)
+
+
+    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName, date).equals(7.20))
+
+  }
+
+
+
+  "calculateBill" should "take 50% off drinks when bill only contains drinks between time 18 and 21" in {
+    val staffName: Employee = Employee("test Employee", "tester")
+    val loyaltyCustomerName: Option[Customer] = None
+    val order: List[MenuItems] = List(Coffee, Coffee, Coffee)
+    val testDate: Int = 19
+
+    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName, testDate).equals(1.50))
+
+  }
+
+  "calculateBill" should "take 50% off drinks when bill contains cold food and drink between time 18 and 21 then add 10% tip" in {
+    val staffName: Employee = Employee("test Employee", "tester")
+    val loyaltyCustomerName: Option[Customer] = None
+    val order: List[MenuItems] = List(Coffee, Coffee, Coffee, CheeseSandwich)
+    val testDate: Int = 19
+
+    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName, testDate).equals(3.85))
+
+  }
+
+  "calculateBill" should "take 50% off drinks when bill contains hot food and drink between time 18 and 21 then add 20% tip" in {
+    val staffName: Employee = Employee("test Employee", "tester")
+    val loyaltyCustomerName: Option[Customer] = None
+    val order: List[MenuItems] = List(Coffee, Coffee, Coffee, SteakSandwich, CheeseSandwich)
+    val testDate: Int = 19
+
+    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName, testDate).equals(9.60))
+
+  }
+
+  "calculateBill" should "take 50% off drinks when bill contains premium food and drink between time 18 and 21 then add 25% tip" in {
+    val staffName: Employee = Employee("test Employee", "tester")
+    val loyaltyCustomerName: Option[Customer] = None
+    val order: List[MenuItems] = List(Coffee, Coffee, SteakSandwich, Lobster)
+    val testDate: Int = 19
+
+    assert(CafeX.calculateBill(order, loyaltyCustomerName, staffName, testDate).equals(38.13))
+
+  }
+  
 }
+

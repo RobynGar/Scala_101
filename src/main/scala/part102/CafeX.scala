@@ -1,146 +1,72 @@
 package part102
+import part102.menuObjectsAndTraits.{Caviar, CheeseSandwich, Coffee, Cola, Customer, Employee, FoodBeverage, Lobster, MenuItems, SteakSandwich, Temperature}
+
 import java.time._
-//import scala.math.BigDecimal.RoundingMode //this does not seem to be needed
+import java.time.format.DateTimeFormatter
+
 
 object CafeX extends App{
- trait MenuItem{
-   val cost: BigDecimal
-   val temp: Temperature
-   val name: String
-   val vegetarian: Boolean
-   val vegan: Boolean
-   val foodType: FoodBeverage.Value
-   val premiumItem: Boolean
- }
-
-  sealed trait Temperature
-  case object Hot extends Temperature
-  case object Cold extends Temperature
-
-  object FoodBeverage extends Enumeration{
-    val Food, Beverage = Value
-  }
-
-  object Coffee extends MenuItem {
-    override val cost: BigDecimal = 1.0
-    override val temp: Temperature = Hot
-    override val name: String = "Coffee"
-    override val vegetarian: Boolean = true
-    override val vegan: Boolean = false
-    override val foodType: FoodBeverage.Value = FoodBeverage.Beverage
-    override val premiumItem: Boolean = false
-  }
-  object Cola extends MenuItem {
-    override val cost: BigDecimal = 0.50
-    override val temp: Temperature = Cold
-    override val name: String = "Cola"
-    override val vegetarian: Boolean = true
-    override val vegan: Boolean = true
-    override val foodType: FoodBeverage.Value = FoodBeverage.Beverage
-    override val premiumItem: Boolean = false
-  }
-  object CheeseSandwich extends MenuItem {
-    override val cost: BigDecimal = 2.0
-    override val temp: Temperature = Cold
-    override val name: String = "Cheese Sandwich"
-    override val vegetarian: Boolean = true
-    override val vegan: Boolean = false
-    override val foodType: FoodBeverage.Value = FoodBeverage.Food
-    override val premiumItem: Boolean = false
-  }
-  object SteakSandwich extends MenuItem {
-    override val cost: BigDecimal = 4.5
-    override val temp: Temperature = Hot
-    override val name: String = "Steak Sandwich"
-    override val vegetarian: Boolean = false
-    override val vegan: Boolean = false
-    override val foodType: FoodBeverage.Value = FoodBeverage.Food
-    override val premiumItem: Boolean = false
-  }
-  object Lobster extends MenuItem {
-    override val cost: BigDecimal = 25.0
-    override val temp: Temperature = Hot
-    override val name: String = "lobster"
-    override val vegetarian: Boolean = false
-    override val vegan: Boolean = false
-    override val foodType: FoodBeverage.Value = FoodBeverage.Food
-    override val premiumItem: Boolean = true
-  }
-
-  object Steak extends MenuItem {
-    override val cost: BigDecimal = 25.0
-    override val temp: Temperature = Hot
-    override val name: String = "Steak and chips"
-    override val vegetarian: Boolean = false
-    override val vegan: Boolean = false
-    override val foodType: FoodBeverage.Value = FoodBeverage.Food
-    override val premiumItem: Boolean = false
-  }
-  trait Customer{
-    val loyaltyCard: Boolean
-    val name: String
-    val numOfStars: Int
-  }
-
-  object Karen extends Customer {
-    override val loyaltyCard: Boolean = true
-    override val name: String = "Karen"
-    override val numOfStars: Int = 3
-  }
-
-  object Keith extends Customer {
-    override val loyaltyCard: Boolean = true
-    override val name: String = "Keith"
-    override val numOfStars: Int = 9
-  }
-
-  trait Employee{
-    val name: String
-    val positionTitle: String
-  }
-  object Alice extends Employee {
-    override val name: String = "Alice"
-    override val positionTitle: String = "Manger"
-  }
-  object Bob extends Employee {
-    override val name: String = "Bob"
-    override val positionTitle: String = "Waiter"
-  }
+  //TODO all traits and objects should not live inside this object
 
 
-  val date: LocalDateTime = LocalDateTime.now()
+  val karen = Customer(true, "Karen", 3)
+  //TODO: Again I wouldn't really say a Karen is an object
 
-  def whichServiceCharge(items: List[MenuItem], loyalService: Option[Customer]): BigDecimal = {
+  val keith = Customer(true, "Keith", 9)
+
+
+  val alice= Employee("Alice", "Manger")
+  //TODO: Defining an object Alice is good, but what if we wanted to enter loads of employees? Would a class be better suited that a trait/object?
+  val bob= Employee("Bob", "Waiter")
+
+  //TODO: Really happy with how these traits and objects are laid out, just in the wrong location
+
+
+  val date: Int = LocalTime.now().getHour
+
+  val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+  val dateMin: String = formatter.format(LocalTime.now())
+
+  //TODO: when naming methods, think about what it is doing rather than an object, e.g. this is calculating the bill, its not initializing a Bill Type
+
+
+  def whichServiceCharge(items: List[MenuItems], loyalService: Option[Customer], date: Int): BigDecimal = {
     if (items.exists(x => x.foodType == FoodBeverage.Food && x.premiumItem)){
-      totalWithPremium(items)
-    } else if (items.exists(x => x.temp == Hot && x.foodType == FoodBeverage.Food)) {
-      totalWithHotFood(items, loyalService).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+      totalPlusServiceChargeWithPremium(items, date)
+    } else if (items.exists(x => x.temp == Temperature.Hot && x.foodType == FoodBeverage.Food)) {
+      totalPlusServiceChargeWithHotFood(items, loyalService, date).setScale(2, BigDecimal.RoundingMode.HALF_UP)
     } else if (items.exists(x => x.foodType == FoodBeverage.Food)){
-      total(items, loyalService)
-    } else totalOnlyDrinks(items, loyalService)
+      totalPlusServiceCharge(items, loyalService, date)
+    } else
+      totalOnlyDrinks(items, loyalService, date)
   }
 
-  def total(items: List[MenuItem], loyalCustomer: Option[Customer]): BigDecimal = {
+
+  def totalPlusServiceCharge(items: List[MenuItems], loyalCustomer: Option[Customer], date: Int): BigDecimal = {
     loyalCustomer match {
-      case Some(x) => (loyaltyScheme(x, items) + (loyaltyScheme(x, items) * 0.1)).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      case None if (date.getHour >= 18 && date.getHour <= 21) => ((items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2) * 0.1).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+      case Some(x) => (applyLoyaltySchemeToOrder(x, items, date) + (applyLoyaltySchemeToOrder(x, items, date) * 0.1)).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+      case None if (date >= 18 && date <= 21) =>
+        val drinksFood = (items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2) + items.filter(orderItems => orderItems.foodType != FoodBeverage.Beverage).map(food => food.cost).sum
+        (drinksFood + (drinksFood * 0.1)).setScale(2, BigDecimal.RoundingMode.HALF_UP)
       case None => items.map(x => x.cost).sum + (items.map(x => x.cost).sum * 0.1).setScale(2, BigDecimal.RoundingMode.HALF_UP)
     }
 
   }
-  def totalOnlyDrinks(items: List[MenuItem], loyalCustomer: Option[Customer]): BigDecimal = {
+
+
+  def totalOnlyDrinks(items: List[MenuItems], loyalCustomer: Option[Customer], date: Int): BigDecimal = {
     loyalCustomer match {
-      case Some(x) => loyaltyScheme(x, items).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      case None if (date.getHour >= 18 && date.getHour <= 21) => items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2
+      case Some(x) => applyLoyaltySchemeToOrder(x, items, date).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+      case None if (date >= 18 && date <= 21) => items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2
       case None => items.map(x => x.cost).sum
     }
-
   }
 
-  def totalWithHotFood(items: List[MenuItem], loyalCustomer: Option[Customer]): BigDecimal = {
 
-    def notLoyal(notLoyalItems: List[MenuItem]): BigDecimal = {
-      val happyHour = if (date.getHour >= 18 && date.getHour <= 21){
+  def totalPlusServiceChargeWithHotFood(items: List[MenuItems], loyalCustomer: Option[Customer], date: Int): BigDecimal = {
+
+    def notLoyal(notLoyalItems: List[MenuItems]): BigDecimal = { //TODO: Having methods embedded inside others is not usually recommended, especially 3 layers deep!
+      val happyHour = if (date >= 18 && date <= 21){
         val drinks = notLoyalItems.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2
         (notLoyalItems.filter(x => x.foodType == FoodBeverage.Food).map(x => x.cost).sum) + drinks
       }else {
@@ -154,15 +80,15 @@ object CafeX extends App{
 
 
     loyalCustomer match {
-      case Some(x) if((loyaltyScheme(x, items) * 0.2) >= 20) => loyaltyScheme(x, items) + 20
-      case Some(x) => loyaltyScheme(x, items) + (loyaltyScheme(x, items) * 0.2)
+      case Some(x) if((applyLoyaltySchemeToOrder(x, items, date) * 0.2) >= 20) => applyLoyaltySchemeToOrder(x, items, date) + 20
+      case Some(x) => applyLoyaltySchemeToOrder(x, items, date) + (applyLoyaltySchemeToOrder(x, items, date) * 0.2)
       case None => notLoyal(items)
     }
   }
 
 
-  def totalWithPremium(items: List[MenuItem]): BigDecimal = {
-    val hotFood = if (date.getHour >= 18 && date.getHour <= 21){
+  def totalPlusServiceChargeWithPremium(items: List[MenuItems], date: Int): BigDecimal = { //TODO: again, a lot of this code looks similar to above, could it be re-used?
+    val hotFood = if (date >= 18 && date <= 21){
       val drinks = items.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2
       (items.filter(food => food.foodType == FoodBeverage.Food).map(food => food.cost).sum) + drinks
     } else {
@@ -174,58 +100,65 @@ object CafeX extends App{
     else hotFood + serviceCharge
   }
 
-  def loyaltyScheme(customerName: Customer, order: List[MenuItem]): BigDecimal = {
-    customerName match {
-      case x if (x.loyaltyCard && x.numOfStars >= 3 && x.numOfStars <= 8) => discountedTotal(x.numOfStars * 0.025, order)
-      case x if (x.loyaltyCard && x.numOfStars >= 8) => discountedTotal(8 * 0.025, order)
+  def applyLoyaltySchemeToOrder(customerName: Customer, order: List[MenuItems], date: Int): BigDecimal = {
+    customerName match { //TODO: rename to hasLoyaltyCard
+      case customer if (customer.hasLoyaltyCard && customer.numOfStars >= 3 && customer.numOfStars <= 8) => discountTheOrder(customer.numOfStars * 0.025, order, date)
+      case customer if (customer.hasLoyaltyCard && customer.numOfStars >= 8) => discountTheOrder(8 * 0.025, order, date)
       case _ => 1.0
     }
   }
-  def discountedTotal(discount: BigDecimal, discountOrder: List[MenuItem]): BigDecimal = {
-    if (date.getHour >= 18 && date.getHour <= 21) {
-      val drinks = discountOrder.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2
-      val happyTotal =((discountOrder.filter(food => food.foodType == FoodBeverage.Food).map(food => food.cost).sum) + drinks)
+  def discountTheOrder(discount: BigDecimal, order: List[MenuItems], date: Int): BigDecimal = { //TODO: why is dicountOrder the input?
+    if (date >= 18 && date <= 21) {
+      val drinks = order.filter(x => x.foodType == FoodBeverage.Beverage).map(drinks => drinks.cost).sum / 2
+      val happyTotal =((order.filter(food => food.foodType == FoodBeverage.Food).map(food => food.cost).sum) + drinks)
       happyTotal - happyTotal * discount
     } else {
-      discountOrder.map(x => x.cost).sum - discountOrder.map(x => x.cost).sum * discount
+      order.map(x => x.cost).sum - order.map(x => x.cost).sum * discount
     }
   }
 
-// the most complicated parameter comes first in parameter
-  def bill(order: List[MenuItem], loyaltyCustomerName: Option[Customer], staffName: Employee): String = {
 
-    val orderTotal = whichServiceCharge(order, loyaltyCustomerName)
+//  def addStarIfBillOver20(loyaltyCustomerName: Option[Customer], orderTotal: BigDecimal): Int ={
+//    loyaltyCustomerName match {
+//    case Some(customer) if(orderTotal >= 20) =>
+//      customer.addStar(customer).numOfStars
+//      println(customer.addStar(customer).numOfStars)
+//      customer.numOfStars
+//    case Some(customer) =>
+//      println(s"Welcome back ${customer.name}, spend over £20 to collect stars, you currently have ${customer.numOfStars}")
+//      customer.numOfStars
+//    case None =>
+//      println("Join our loyalty scheme to get money off your next order")
+//        0
+//  }}
 
+  def calculateBill(order: List[MenuItems], loyaltyCustomerName: Option[Customer], staffName: Employee, date: Int): BigDecimal = {
    println("-----------------------------------------------")
 
+    val total = whichServiceCharge(order, loyaltyCustomerName, date)
+    //addStarIfBillOver20(loyaltyCustomerName, total)
 
-    if (order.exists(x => x.foodType == FoodBeverage.Food)) {
-        s"Today you were served by ${staffName.name}(${staffName.positionTitle}). \n Your bill including service charge is £$orderTotal. \n  Time of transaction ${date.getHour}"
+
+    if (order.exists(x => x.foodType == FoodBeverage.Food)) { //TODO: I like the creative sentences, you're seeing how this could be used/applied. However, when we're testing we don't need these filler sentences, harder to match things
+        println(s"Today you were served by ${staffName.name}(${staffName.positionTitle}).\n  Time of transaction ${dateMin}.\n    Your bill including service charge:")
       } else {
-        s"Today you were served by ${staffName.name}(${staffName.positionTitle}). \n Your bill is £$orderTotal. \n  Time of transaction ${date.getHour}"
+        println(s"Today you were served by ${staffName.name}(${staffName.positionTitle}).\n  Time of transaction ${dateMin}.\n    Your bill including service charge:")
       }
-    }
-
-//non-loyal customers
-  println(bill(List(Coffee, CheeseSandwich),None, Alice))//3.30 no hot food so service charge of 10%
-  println(bill(List(Coffee, Coffee, Cola, Coffee), None, Alice))//3.5 only drinks so no service charge should be applied
-  println(bill(List(Coffee, SteakSandwich), None, Alice))//6.60 contains hot food so should add 20% to bill for service charge
-  println(bill(List(SteakSandwich, Coffee), None, Alice))//6.60 this should be the same as above as the order the food and drinks are inputted should not make a difference
-  println(bill(List(Steak, Steak, Steak, Steak, Steak), None, Alice)) //145.0 Made steak a non premium item so can test 20% without activating premium, expensive meal to activate £20 service charge limit 125 meal that is hot so should be a 20% service charge of £25 but the max will make this £20 so 125 + 20 = £145
-  println(bill(List(Lobster, Lobster, Cola), None, Alice)) // 63.13 activate premium item 25% service charge
-  println(bill(List(Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster), None, Alice)) //240.0, 200 bill with premium item at 25% will give 50 tip and activate the 40 limit so 200 + 40 output of 240
-//loyal customers
-  println("--------START OF LOYAL---------" )
-  println(bill(List(Coffee, CheeseSandwich),Some(Karen), Bob)) //3.05 loyal discount then 10% tip added
-  println(bill(List(Coffee, Coffee, Cola, Coffee), Some(Karen), Bob))//3.24 loyal discount no tip
-  println(bill(List(Coffee, SteakSandwich), Some(Karen), Bob)) //6.10 loyal discount then 20% tip added
-  println(bill(List(SteakSandwich, Coffee), Some(Karen), Bob)) //6.10
-  println(bill(List(Steak, Steak, Steak, Steak, Steak, Steak), Some(Karen), Bob)) //158.75 loyal discount then activate premium item 25% service charge
-  println(bill(List(Lobster, Lobster, Cola), Some(Karen), Bob)) //63.13 contains premium so no loyal
-  println(bill(List(Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster, Lobster), Some(Karen), Bob)) //240
 
 
-  println("--------loyal customer with over 8 stars---------")
-  println(bill(List(Coffee, CheeseSandwich), Some(Keith), Bob)) //2.64
+    total
+
+  }
+
+
+
+//non-loyal customers //TODO: Usually we go for test suites, I see you've made them before, it makes it easier to spot mistakes!
+   println(calculateBill(List(Coffee, Coffee, Coffee, CheeseSandwich, SteakSandwich), None, alice, date))
+
+
+ //loyal customers
+
+println(calculateBill(List(Coffee, CheeseSandwich, SteakSandwich),Some(karen), bob, date))
+
 
 }
